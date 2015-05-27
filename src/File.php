@@ -2,45 +2,77 @@
 namespace phootwork\file;
 
 use phootwork\file\exception\FileException;
+use \DateTime;
 
 class File {
  
 	use FileOperationTrait;
 	
-	public function __construct($fileName) {
-		$this->pathName = $fileName;
+	public function __construct($filename) {
+		$this->init($filename);
 	}
 
 	/**
-	 * Checks whether the file exists
-	 *
-	 * @return boolean Returns TRUE if exists; FALSE otherwise. Will return FALSE for symlinks
-	 * 		pointing to non-existing files.
+	 * Reads contents from the file
+	 * 
+	 * @throws FileException
+	 * @return string contents
 	 */
-	public function exists() {
-		return file_exists($this->pathName);
-	}
-	
-	public function getContents() {
+	public function read() {
 		if (!$this->exists()) {
 			throw new FileException(sprintf('File does not exist: %s', $this->getFilename()));
 		}
+
+		return file_get_contents($this->pathname);
+	}
+
+	/**
+	 * Writes contents to the file
+	 *
+	 * @param string $contents
+	 * @return $this
+	 */
+	public function write($contents) {
+		$dir = new Directory($this->getDirname());
+		$dir->make();
 	
-		if ($this->isFile()) {
-			return file_get_contents($this->pathName);
+		file_put_contents($this->pathname, $contents);
+		return $this;
+	}
+	
+	/**
+	 * Touches the file
+	 * 
+	 * @param int|DateTime $created
+	 * @param int|DateTime $lastAccessed
+	 * @throws FileException when something goes wrong
+	 */
+	public function touch($created = null, $lastAccessed = null) {
+		$created = $created instanceof DateTime 
+			? $created->getTimestamp() 
+			: $created === null ? time() : $created;
+		$lastAccessed = $lastAccessed instanceof DateTime
+			? $lastAccessed->getTimestamp()
+			: $lastAccessed === null ? time() : $lastAccessed;
+		
+		if (!@touch($this->pathname, $created, $lastAccessed)) {
+			throw new FileException(sprintf('Failed to touch file at %s', $this->pathname));
 		}
 	}
 	
-	public function setContents($contents) {
-		file_put_contents($this->pathName, $contents);
+	/**
+	 * Deletes the file
+	 *
+	 * @throws FileException when something goes wrong
+	 */
+	public function delete() {
+		if (!@unlink($this->pathname)) {
+			throw new FileException(sprintf('Failed to delete file at %s', $this->pathname));
+		}
 	}
 	
-	public function append($contents) {
-		$this->write($this->read() . $contents);
+	public function __toString() {
+		return $this->pathname;
 	}
-	
-	public function prepend($contents) {
-		$this->write($contents . $this->read());
-	}
-	
+
 }

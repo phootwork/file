@@ -2,6 +2,7 @@
 namespace phootwork\file;
 
 use \DirectoryIterator;
+use phootwork\file\exception\FileException;
 
 class Directory implements \Iterator {
 	
@@ -9,31 +10,39 @@ class Directory implements \Iterator {
 	
 	private $iterator;
 	
-	public function __construct($fileName) {
-		$this->pathName = $fileName;
-	}
-
-	/**
-	 * Checks whether the directory exists
-	 *
-	 * @return boolean Returns TRUE if exists; FALSE otherwise. Will return FALSE for symlinks
-	 * 		pointing to non-existing files.
-	 */
-	public function exists() {
-		return file_exists($this->pathName);
+	public function __construct($filename) {
+		$this->init($filename);
 	}
 	
 	/**
 	 * Creates the directory
 	 * 
+	 * @throws FileException when something goes wrong
 	 * @param number $mode
-	 * @return TRUE on success; FALSE if it fails
+	 * @return boolean true on success; false if it fails
 	 */
-	public function create($mode = 0777) {
-		if (!$this->exists()) {
-			return mkdir($this->pathName, $mode, true);
+	public function make($mode = 0777) {
+		if (!$this->exists() && !@mkdir($this->pathname, $mode, true)) {
+			throw new FileException(sprintf('Failed to create directory "%s"', $this->pathname));
 		}
-		return true;
+	}
+	
+	/**
+	 * Recursively deletes the directory
+	 *
+	 * @throws FileException when something goes wrong
+	 * @return boolean true on success; false if it fails
+	 */
+	public function delete() {
+		foreach ($this as $file) {
+			if (!$file->isDot()) {
+				$file->delete();
+			}
+		}
+
+		if (!@rmdir($this->pathname)) {
+			throw new FileException(sprintf('Failed to delete directory "%s"', $this->pathname));
+		}
 	}
 
 	/**
@@ -43,7 +52,7 @@ class Directory implements \Iterator {
 	 */
 	private function getIterator() {
 		if ($this->iterator === null) {
-			$this->iterator = new DirectoryIterator($this->pathName);
+			$this->iterator = new DirectoryIterator($this->pathname);
 		}
 		return $this->iterator;
 	}
@@ -84,4 +93,7 @@ class Directory implements \Iterator {
 		return $this->getIterator()->valid();
 	}
 
+	public function __toString() {
+		return $this->pathname;
+	}
 }

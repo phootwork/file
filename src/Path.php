@@ -2,28 +2,32 @@
 namespace phootwork\file;
 
 use phootwork\lang\String;
+use phootwork\lang\ArrayObject;
 
 class Path {
 	
 	private $extension;
-	private $pathName;
+	private $pathname;
 	private $segments;
 	
-	public function __construct($pathName) {
-		$this->init($pathName);
+	public function __construct($pathname) {
+		$this->init($pathname);
 	}
-	
-	private function init($pathName) {
-		$this->pathName = new String($pathName);
-		$this->segments = $this->pathName->split('/');
 
-		$pathInfo = pathinfo($this->pathName);
-		$this->extension = $pathInfo['extension'];
+	private function init($pathname) {
+		$this->pathname = $pathname instanceof String ? $pathname : new String($pathname);
+		$this->segments = $this->pathname->split('/');
+
+		$pathInfo = pathinfo($this->pathname);
 		$this->fileName = $pathInfo['filename'];
+
+		if (isset($pathInfo['extension'])) {
+			$this->extension = $pathInfo['extension'];
+		}
 	}
-	
+
 	public function getExtension() {
-		return pathinfo($this->pathName, PATHINFO_EXTENSION);
+		return $this->extension;
 	}
 	
 	/**
@@ -32,7 +36,7 @@ class Path {
 	 * @return string the filename
 	 */
 	public function getFilename() {
-		return basename($this->pathName);
+		return basename($this->pathname);
 	}
 	
 	/**
@@ -40,8 +44,8 @@ class Path {
 	 *
 	 * @return string
 	 */
-	public function getDirectory() {
-		return dirname($this->pathName);
+	public function getDirname() {
+		return dirname($this->pathname);
 	}
 	
 	/**
@@ -50,7 +54,7 @@ class Path {
 	 * @return String
 	 */
 	public function getPathname() {
-		return $this->pathName;
+		return $this->pathname;
 	}
 	
 	/**
@@ -60,14 +64,14 @@ class Path {
 	 * @return Path $this
 	 */
 	public function setExtension($extension) {
-		$pathinfo = pathinfo($this->pathName);
+		$pathinfo = pathinfo($this->pathname);
 		
-		$pathName = new String($pathinfo['dirname']);
+		$pathname = new String($pathinfo['dirname']);
 		if (!empty($pathinfo['dirname'])) {
-			$pathName = $pathName->append('/');
+			$pathname = $pathname->append('/');
 		}
 		
-		$this->init($pathName
+		$this->init($pathname
 			->append($pathinfo['filename'])
 			->append('.')
 			->append($extension))
@@ -80,11 +84,11 @@ class Path {
 	 * Returns a path with the same segments as this path but with a 
 	 * trailing separator added (if not already existent).
 	 * 
-	 * @return self
+	 * @return $this
 	 */
 	public function addTrailingSeparator() {
 		if (!$this->hasTrailingSeparator()) {
-			$this->pathName = $this->pathName->append('/');
+			$this->pathname = $this->pathname->append('/');
 		}
 		return $this;
 	}
@@ -101,8 +105,11 @@ class Path {
 			$path = $path->getPathname();
 		}
 		
-		$this->pathName = $this->pathName->append('/' . $path)->replace('//', '/');
-		return $this;
+		if (!$this->hasTrailingSeparator()) {
+			$this->addTrailingSeparator();
+		}
+		
+		return new Path($this->pathname->append($path));
 	}
 
 	/**
@@ -111,7 +118,7 @@ class Path {
 	 * @return boolean
 	 */
 	public function hasTrailingSeparator() {
-		return $this->pathName->endsWith('/');
+		return $this->pathname->endsWith('/');
 	}
 	
 	/**
@@ -120,7 +127,21 @@ class Path {
 	 * @return boolean
 	 */
 	public function isAbsolute() {
+		if (realpath($this->pathname->toString()) == $this->pathname->toString()) {
+			return true;
+		}
 		
+		if ($this->pathname->length() == 0 || $this->pathname->charAt(0) == '.') {
+			return false;
+		}
+		
+		// Windows allows absolute paths like this.
+		if ($this->pathname->match('#^[a-zA-Z]:\\\\#')) {
+			return true;
+		}
+
+		// A path starting with / or \ is absolute; anything else is relative.
+		return $this->pathname->charAt(0) == '/' || $this->pathname->charAt(0) == '\\';
 	}
 	
 	/**
@@ -129,7 +150,7 @@ class Path {
 	 * @return boolean
 	 */
 	public function isPrefixOf(Path $anotherPath) {
-		return $this->pathName->startsWith($anotherPath->getPathname());
+		return $anotherPath->getPathname()->startsWith($this->pathname);
 	}
 
 	/**
@@ -138,11 +159,7 @@ class Path {
 	 * @return String
 	 */
 	public function lastSegment() {
-		if (count($this->segments)) {
-			return new String($this->segments[count($this->segments) - 1]);
-		}
-		
-		return null;
+		return new String($this->segments[count($this->segments) - 1]);
 	}
 
 	/**
@@ -150,7 +167,8 @@ class Path {
 	 * @param Path $base
 	 */
 	public function makeRelativeTo(Path $base) {
-		return new Path($this->pathName->replace($base->removeTrailingSeparator()->getPathname(), ''));
+		$pathname = clone $this->pathname;
+		return new Path($pathname->replace($base->removeTrailingSeparator()->getPathname(), ''));
 	}
 	
 	/**
@@ -179,7 +197,7 @@ class Path {
 	 * @return Path
 	 */
 	public function removeExtension() {
-		return new Path($this->pathName->replace('.' . $this->getExtension(), ''));
+		return new Path($this->pathname->replace('.' . $this->getExtension(), ''));
 	}
 	
 	/**
@@ -189,11 +207,11 @@ class Path {
 	 * @return Path
 	 */
 	public function removeFirstSegments($count) {
-		$pathName = '';
+		$segments = new ArrayObject();
 		for ($i = $count; $i < $this->segmentCount(); $i++) {
-			$pathName .= '/' .$this->segments[$i];
+			$segments->push($this->segments[$i]);
 		}
-		return new Path($pathName);
+		return new Path($segments->join('/'));
 	}
 	
 	/**
@@ -203,23 +221,23 @@ class Path {
 	 * @return Path
 	 */
 	public function removeLastSegments($count) {
-		$pathName = '';
+		$segments = new ArrayObject();
 		for ($i = 0; $i < $this->segmentCount() - $count; $i++) {
-			$pathName .= '/' .$this->segments[$i];
+			$segments->push($this->segments[$i]);
 		}
-		return new Path($pathName);
+		return new Path($segments->join('/'));
 	}
 	
 	/**
 	 * Returns a copy of this path with the same segments as this path but with a trailing separator removed.
 	 * 
-	 * @return Path
+	 * @return $this
 	 */
 	public function removeTrailingSeparator() {
 		if ($this->hasTrailingSeparator()) {
-			return new Path($this->pathName->substring(0, -1));
+			$this->pathname = $this->pathname->substring(0, -1);
 		}
-		return new Path($this->pathName);
+		return $this;
 	}
 	
 	/**
@@ -242,7 +260,7 @@ class Path {
 	 * @return int
 	 */
 	public function segmentCount() {
-		return count($this->segments);
+		return $this->segments->count();
 	}
 	
 	/**
@@ -260,16 +278,20 @@ class Path {
 	 * @return FileDescriptor
 	 */
 	public function toFileDescriptor() {
-		return new FileDescriptor($this->pathName);
+		return new FileDescriptor($this->pathname);
 	}
 	
 	/**
 	 * Returns a string representation of this path
 	 * 
-	 * @return String A string representation of this path
+	 * @return string A string representation of this path
 	 */
 	public function toString() {
-		return $this->pathName;
+		return $this->pathname->toString();
+	}
+	
+	public function __toString() {
+		return $this->toString();
 	}
 	
 	/**
@@ -279,11 +301,35 @@ class Path {
 	 * @return Path	
 	 */
 	public function upToSegment($count) {
-		$pathName = '';
-		for ($i = 0; $i < $count - 1; $i++) {
-			$pathName .= '/' .$this->segments[$i];
+		$segments = new ArrayObject();
+		for ($i = 0; $i < $count; $i++) {
+			$segments->push($this->segments[$i]);
 		}
-		return new Path($pathName);
+
+		return new Path($segments->join('/'));
 	}
 	
+	/**
+	 * Checks whether both paths point to the same location
+	 * 
+	 * @param Path|string $anotherPath
+	 * @return boolean true if the do, false if they don't
+	 */
+	public function equals($anotherPath) {
+		$anotherPath = $anotherPath instanceof Path ? $anotherPath : new Path($anotherPath);
+
+		// do something else, when path's are urls
+		$regexp = '/^[a-zA-Z]+:\/\//';
+		$thisUrl = $this->pathname->match($regexp);
+		$anotherUrl = $anotherPath->getPathname()->match($regexp);
+
+		if ($thisUrl xor $anotherUrl) {
+			return false;
+		} else if ($thisUrl && $anotherUrl) {
+			return $this->pathname->equals($anotherPath->getPathname());
+		}
+
+		return realpath($this->pathname->toString()) == realpath($anotherPath->toString());
+	}
+
 }

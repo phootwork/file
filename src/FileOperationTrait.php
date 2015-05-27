@@ -3,13 +3,22 @@ namespace phootwork\file;
 
 use phootwork\file\exception\FileException;
 use \DateTime;
+use phootwork\lang\String;
 
 trait FileOperationTrait {
 	
-	protected $pathName;
+	protected $pathname;
+	
+	public static function create($pathname) {
+		return new static($pathname);
+	}
+	
+	protected function init($pathname) {
+		$this->pathname = ''.$pathname; // cast to string
+	}
 	
 	public function getExtension() {
-		return pathinfo($this->pathName, PATHINFO_EXTENSION);
+		return pathinfo($this->pathname, PATHINFO_EXTENSION);
 	}
 
 	/**
@@ -18,7 +27,7 @@ trait FileOperationTrait {
 	 * @return string the filename
 	 */
 	public function getFilename() {
-		return basename($this->pathName);
+		return basename($this->pathname);
 	}
 	
 	/**
@@ -26,8 +35,8 @@ trait FileOperationTrait {
 	 * 
 	 * @return string
 	 */
-	public function getPath() {
-		return dirname($this->pathName);
+	public function getDirname() {
+		return dirname($this->pathname);
 	}
 	
 	/**
@@ -36,7 +45,7 @@ trait FileOperationTrait {
 	 * @return String
 	 */
 	public function getPathname() {
-		return $this->pathName;
+		return $this->pathname;
 	}
 	
 	/**
@@ -45,7 +54,7 @@ trait FileOperationTrait {
 	 * @return Path
 	 */
 	public function toPath() {
-		return new Path($this->pathName);
+		return new Path($this->pathname);
 	}
 	
 	/**
@@ -54,7 +63,7 @@ trait FileOperationTrait {
 	 * @return DateTime
 	 */
 	public function getLastAccessedAt() {
-		$timestamp = fileatime($this->pathName);
+		$timestamp = fileatime($this->pathname);
 		$time = new DateTime();
 		$time->setTimestamp($timestamp);
 		return $time;
@@ -66,7 +75,7 @@ trait FileOperationTrait {
 	 * @return DateTime
 	 */
 	public function getCreatedAt() {
-		$timestamp = filectime($this->pathName);
+		$timestamp = filectime($this->pathname);
 		$time = new DateTime();
 		$time->setTimestamp($timestamp);
 		return $time;
@@ -78,7 +87,7 @@ trait FileOperationTrait {
 	 * @return DateTime
 	 */
 	public function getModifiedAt() {
-		$timestamp = filemtime($this->pathName);
+		$timestamp = filemtime($this->pathname);
 		$time = new DateTime();
 		$time->setTimestamp($timestamp);
 		return $time;
@@ -90,7 +99,7 @@ trait FileOperationTrait {
 	 * @return int Returns the inode number of the file, or FALSE on failure. 
 	 */
 	public function getInode() {
-		return fileinode($this->pathName);
+		return fileinode($this->pathname);
 	}
 	
 	/**
@@ -99,7 +108,7 @@ trait FileOperationTrait {
 	 * @return int Returns the group ID, or FALSE if an error occurs.
 	 */
 	public function getGroup() {
-		return filegroup($this->pathName);
+		return filegroup($this->pathname);
 	}
 	
 	/**
@@ -108,7 +117,7 @@ trait FileOperationTrait {
 	 * @return int Returns the user ID of the owner, or FALSE on failure.
 	 */
 	public function getOwner() {
-		return fileowner($this->pathName);
+		return fileowner($this->pathname);
 	}
 	
 	/**
@@ -121,9 +130,18 @@ trait FileOperationTrait {
 	 * 		and file types on POSIX systems, including Linux and Mac OS X. 
 	 */
 	public function getPermissions() {
-		return fileperms($this->pathName);
+		return fileperms($this->pathname);
 	}
-
+	
+	/**
+	 * Checks its existance
+	 *
+	 * @return boolean Returns TRUE if exists; FALSE otherwise. Will return FALSE for symlinks
+	 * 		pointing to non-existing files.
+	 */
+	public function exists() {
+		return file_exists($this->pathname);
+	}
 	
 	/**
 	 * Tells whether is executable
@@ -131,7 +149,7 @@ trait FileOperationTrait {
 	 * @return boolean Returns TRUE if exists and is executable.
 	 */
 	public function isExecutable() {
-		return is_executable($this->pathName);
+		return is_executable($this->pathname);
 	}
 	
 	/**
@@ -140,7 +158,7 @@ trait FileOperationTrait {
 	 * @return boolean Returns TRUE if exists and is readable.
 	 */
 	public function isReadable() {
-		return is_readable($this->pathName);
+		return is_readable($this->pathname);
 	}
 	
 	/**
@@ -149,7 +167,7 @@ trait FileOperationTrait {
 	 * @return boolean Returns TRUE if exists and is writable. 
 	 */
 	public function isWritable() {
-		return is_writable($this->pathName);
+		return is_writable($this->pathname);
 	}
 
 	/**
@@ -158,25 +176,21 @@ trait FileOperationTrait {
 	 * @return boolean Returns TRUE if the filename exists and is a symbolic link, FALSE otherwise.
 	 */
 	public function isLink() {
-		return is_link($this->pathName);
+		return is_link($this->pathname);
 	}
 	
 	/**
 	 * Returns the target if this is a symbolic link
 	 * 
 	 * @see #isLink
-	 * @return String|null The target path or null if this isn't a link
+	 * @return Path|null The target path or null if this isn't a link
 	 */
 	public function getLinkTarget() {
 		if ($this->isLink()) {
-			return readlink($this->pathName);
+			return new Path(readlink($this->pathname));
 		}
 		return null;
 	}
-	
-// 	public function createLink($target) {
-		
-// 	}
 	
 	/**
 	 * Attempts to change the group.
@@ -189,9 +203,9 @@ trait FileOperationTrait {
 	 */
 	public function setGroup($group) {
 		if ($this->isLink()) {
-			return lchgrp($this->pathName, $group);
+			return lchgrp($this->pathname, $group);
 		} else {
-			return chgrp($this->pathName, $group);
+			return chgrp($this->pathname, $group);
 		}
 	}
 	
@@ -210,9 +224,9 @@ trait FileOperationTrait {
 	 */
 	public function setMode($mode) {
 		if ($this->isLink()) {
-			return lchmod($this->pathName, $mode);
+			return lchmod($this->pathname, $mode);
 		} else {
-			return chmod($this->pathName, $mode);
+			return chmod($this->pathname, $mode);
 		}
 	}
 	
@@ -226,9 +240,9 @@ trait FileOperationTrait {
 	 */
 	public function setOwner($user) {
 		if ($this->isLink()) {
-			return lchown($this->pathName, $user);
+			return lchown($this->pathname, $user);
 		} else {
-			return chown($this->pathName, $user);
+			return chown($this->pathname, $user);
 		}
 	}
 	
@@ -242,12 +256,12 @@ trait FileOperationTrait {
 	 * @return FileDescriptor The copied file.
 	 */
 	public function copy($destination) {
-		if ($destination instanceof Path) {
-			$destination = $destination->toString();
-		}
+		$destination = $destination instanceof Path ? $destination : new Path($destination);
+		$targetDir = new Directory($destination->getDirname());
+		$targetDir->make();
 	
-		if (!copy($this->getPathname(), $destination)) {
-			throw new FileException(sprintf('Failed to copy %s to %s', $this->pathName, $destination));
+		if (!@copy($this->getPathname(), $destination)) {
+			throw new FileException(sprintf('Failed to copy %s to %s', $this->pathname, $destination));
 		}
 	
 		return new FileDescriptor($destination);
@@ -257,81 +271,55 @@ trait FileOperationTrait {
 	/**
 	 * Moves a file
 	 *
+	 * @throws FileException When an error appeared.
 	 * @param String|Path $destination
 	 * @return boolean Returns TRUE on success or FALSE on failure.
 	 */
 	public function move($destination) {
-		if ($destination instanceof Path) {
-			$destination = $destination->toString();
-		}
-	
-		$return = rename($this->getPathname(), $destination);
+		$destination = $destination instanceof Path ? $destination : new Path($destination);
+		$targetDir = new Directory($destination->getDirname());
+		$targetDir->make();
+
+		$return = @rename($this->getPathname(), $destination);
 	
 		if ($return) {
-			$this->pathName = $destination;
+			$this->pathname = $destination;
+		} else {
+			throw new FileException(sprintf('Failed to move %s to %s', $this->pathname, $destination));
 		}
 	
 		return $return;
 	}
 	
-// 	/**
-// 	 * Deletes the file
-// 	 */
-// 	public function delete() {
-// 		if ($this->isFile() || $this->isLink()) {
-// 			unlink($this->pathName);
-// 		} else if ($this->isDirectory()) {
-// 			$files = $this->readDirectory();
-// 			foreach ($this->to as $file) {
-// 				$file->delete();
-// 			}
-// 			rmdir($this->pathName);
-// 		}
-// 	}
-
-// 	/**
-// 	 * Creates a file
-// 	 * 
-// 	 * @see #isFile
-// 	 * 
-// 	 * @throws FileException whether the resource is not a file
-// 	 */
-// 	public function toFile() {
-// 		if (!$this->isFile()) {
-// 			throw new FileException('Cannot create File, resource is not a file');
-// 		}
+	/**
+	 * Creates a symlink to the given destination
+	 * 
+	 * @param String|Path $destination
+	 */
+	public function linkTo($destination) {
+		$target = new FileDescriptor($destination); 
+		$targetDir = new Directory($target->getDirname());
+		$targetDir->make();
 		
-// 		return new File($this->pathName);
-// 	}
+		$ok = false;
+		if ($target->isLink()) {
+			if (!$target->getLinkTarget()->equals($this->pathname)) {
+				$target->delete();
+			} else {
+				$ok = true;
+			}
+		}
+
+		if (!$ok && @symlink($this->pathname, $target->getPathname()) !== true) {
+			$report = error_get_last();
+			if (is_array($report) && DIRECTORY_SEPARATOR === '\\' && strpos($report['message'], 'error code(1314)') !== false) {
+				throw new FileException('Unable to create symlink due to error code 1314: \'A required privilege is not held by the client\'. Do you have the required Administrator-rights?');
+			}
+			throw new FileException(sprintf('Failed to create symbolic link from %s to %s', $this->pathname, $targetDir));
+		}
+		
+	}
 	
-// 	/**
-// 	 * Create a directory
-// 	 * 
-// 	 * @see #isDirectory
-// 	 * 
-// 	 * @throws FileException whether the resource is not a directory
-// 	 */
-// 	public function toDirectory() {
-// 		if (!$this->isDirectory()) {
-// 			throw new FileException('Cannot create Directory, resource is not a directy');
-// 		}
-		
-// 		return new Directory($this->pathName);
-// 	}
-
-// 	/**
-// 	 * Creates a link
-// 	 * 
-// 	 * @see #isLink
-// 	 * 
-// 	 * @throws FileException whether the resource is not a link
-// 	 */
-// 	public function toLink() {
-// 		if (!$this->isLink()) {
-// 			throw new FileException('Cannot create Link, resource is not a link');
-// 		}
-		
-// 		return new Link($this->pathName);
-// 	}
+	public abstract function delete();
 
 }
