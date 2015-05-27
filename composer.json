@@ -1,0 +1,28 @@
+{
+	"keywords" : [
+		"file",
+		"filesystem"
+	],
+	"autoload" : {
+		"psr-4" : {
+			"phootwork\\file\\" : "src"
+		}
+	},
+	"autoload-dev" : {
+		"psr-4" : {
+			"phootwork\\file\\tests\\" : "tests"
+		}
+	},
+	"name" : "phootwork/file",
+	"type" : "library",
+	"description" : "File Operations for the local Filesystem",
+	"license" : "MIT",
+	"require" : {
+		"php" : ">=5.4",
+		"phootwork/lang" : "~0"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "~4",
+		"mikey179/vfsStream" : "~1"
+	}
+}
