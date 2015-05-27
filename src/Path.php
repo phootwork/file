@@ -6,9 +6,12 @@ use phootwork\lang\ArrayObject;
 
 class Path {
 	
-	private $extension;
-	private $pathname;
 	private $segments;
+	private $pathname;
+	private $dirname;
+	private $filename;
+	private $extension;
+	
 	
 	public function __construct($pathname) {
 		$this->init($pathname);
@@ -17,13 +20,9 @@ class Path {
 	private function init($pathname) {
 		$this->pathname = $pathname instanceof String ? $pathname : new String($pathname);
 		$this->segments = $this->pathname->split('/');
-
-		$pathInfo = pathinfo($this->pathname);
-		$this->fileName = $pathInfo['filename'];
-
-		if (isset($pathInfo['extension'])) {
-			$this->extension = $pathInfo['extension'];
-		}
+		$this->extension = pathinfo($this->pathname, PATHINFO_EXTENSION);
+		$this->filename = basename($this->pathname);
+		$this->dirname = dirname($this->pathname);
 	}
 
 	/**
@@ -41,7 +40,7 @@ class Path {
 	 * @return string the filename
 	 */
 	public function getFilename() {
-		return basename($this->pathname);
+		return $this->filename;
 	}
 	
 	/**
@@ -50,7 +49,7 @@ class Path {
 	 * @return string
 	 */
 	public function getDirname() {
-		return dirname($this->pathname);
+		return $this->dirname;
 	}
 	
 	/**
@@ -334,7 +333,7 @@ class Path {
 		$thisUrl = $this->pathname->match($regexp);
 		$anotherUrl = $anotherPath->getPathname()->match($regexp);
 
-		if ($thisUrl xor $anotherUrl) {
+		if ($thisUrl ^ $anotherUrl) {
 			return false;
 		} else if ($thisUrl && $anotherUrl) {
 			return $this->pathname->equals($anotherPath->getPathname());

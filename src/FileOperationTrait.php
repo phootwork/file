@@ -266,9 +266,7 @@ trait FileOperationTrait {
 	 * @param String|Path $destination The destination path.
 	 */
 	public function copy($destination) {
-		$destination = $destination instanceof Path ? $destination : new Path($destination);
-		$targetDir = new Directory($destination->getDirname());
-		$targetDir->make();
+		$destination = $this->getDestination($destination);
 	
 		if (!@copy($this->getPathname(), $destination)) {
 			throw new FileException(sprintf('Failed to copy %s to %s', $this->pathname, $destination));
@@ -282,15 +280,26 @@ trait FileOperationTrait {
 	 * @param String|Path $destination
 	 */
 	public function move($destination) {
-		$destination = $destination instanceof Path ? $destination : new Path($destination);
-		$targetDir = new Directory($destination->getDirname());
-		$targetDir->make();
+		$destination = $this->getDestination($destination);
 
 		if (@rename($this->getPathname(), $destination)) {
 			$this->pathname = $destination;
 		} else {
 			throw new FileException(sprintf('Failed to move %s to %s', $this->pathname, $destination));
 		}
+	}
+	
+	/**
+	 * Transforms destination into path and ensures, parent directory exists
+	 * 
+	 * @param string $destination
+	 * @return Path
+	 */
+	private function getDestination($destination) {
+		$destination = $destination instanceof Path ? $destination : new Path($destination);
+		$targetDir = new Directory($destination->getDirname());
+		$targetDir->make();
+		return $destination;
 	}
 	
 	/**
@@ -319,9 +328,8 @@ trait FileOperationTrait {
 			}
 			throw new FileException(sprintf('Failed to create symbolic link from %s to %s', $this->pathname, $targetDir));
 		}
-		
 	}
-	
+
 	public abstract function delete();
 
 }
