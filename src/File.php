@@ -71,6 +71,9 @@ class File {
 		}
 	}
 	
+	/**
+	 * String representation of this file as pathname
+	 */
 	public function __toString() {
 		return $this->pathname;
 	}

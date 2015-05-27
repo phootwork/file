@@ -9,14 +9,25 @@ trait FileOperationTrait {
 	
 	protected $pathname;
 	
+	/**
+	 * Static instantiator
+	 * 
+	 * @param string $pathname
+	 * @return static
+	 */
 	public static function create($pathname) {
 		return new static($pathname);
 	}
-	
+
 	protected function init($pathname) {
-		$this->pathname = ''.$pathname; // cast to string
+		$this->pathname = ''.$pathname; // "cast" to string
 	}
-	
+
+	/**
+	 * Returns the file extensions
+	 * 
+	 * @return string the file extension
+	 */
 	public function getExtension() {
 		return pathinfo($this->pathname, PATHINFO_EXTENSION);
 	}
@@ -49,7 +60,7 @@ trait FileOperationTrait {
 	}
 	
 	/**
-	 * Returns the path
+	 * Converts the path into a path object
 	 *
 	 * @return Path
 	 */
@@ -212,8 +223,8 @@ trait FileOperationTrait {
 	/**
 	 * Attempts to change the mode.
 	 *
-	 * @see #changeGroup
-	 * @see #changeOwner
+	 * @see #setGroup
+	 * @see #setOwner
 	 *
 	 * @param int $mode
 	 * 		Note that mode is not automatically assumed to be an octal value, so strings
@@ -247,13 +258,12 @@ trait FileOperationTrait {
 	}
 	
 	/**
-	 * Copies file
+	 * Copies the file
 	 *
 	 * If the destination file already exists, it will be overwritten.
 	 *
 	 * @throws FileException When an error appeared.
 	 * @param String|Path $destination The destination path.
-	 * @return FileDescriptor The copied file.
 	 */
 	public function copy($destination) {
 		$destination = $destination instanceof Path ? $destination : new Path($destination);
@@ -263,32 +273,24 @@ trait FileOperationTrait {
 		if (!@copy($this->getPathname(), $destination)) {
 			throw new FileException(sprintf('Failed to copy %s to %s', $this->pathname, $destination));
 		}
-	
-		return new FileDescriptor($destination);
 	}
 	
-	
 	/**
-	 * Moves a file
+	 * Moves the file
 	 *
 	 * @throws FileException When an error appeared.
 	 * @param String|Path $destination
-	 * @return boolean Returns TRUE on success or FALSE on failure.
 	 */
 	public function move($destination) {
 		$destination = $destination instanceof Path ? $destination : new Path($destination);
 		$targetDir = new Directory($destination->getDirname());
 		$targetDir->make();
 
-		$return = @rename($this->getPathname(), $destination);
-	
-		if ($return) {
+		if (@rename($this->getPathname(), $destination)) {
 			$this->pathname = $destination;
 		} else {
 			throw new FileException(sprintf('Failed to move %s to %s', $this->pathname, $destination));
 		}
-	
-		return $return;
 	}
 	
 	/**

@@ -26,6 +26,11 @@ class Path {
 		}
 	}
 
+	/**
+	 * Returns the extension
+	 * 
+	 * @return string the extension
+	 */
 	public function getExtension() {
 		return $this->extension;
 	}
@@ -61,7 +66,7 @@ class Path {
 	 * Changes the extension of this path
 	 * 
 	 * @param string $extension the new extension
-	 * @return Path $this
+	 * @return $this
 	 */
 	public function setExtension($extension) {
 		$pathinfo = pathinfo($this->pathname);
@@ -92,7 +97,7 @@ class Path {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Returns the path obtained from the concatenation of the given path's 
 	 * segments/string to the end of this path.
@@ -145,6 +150,7 @@ class Path {
 	}
 	
 	/**
+	 * Checks whether this path is the prefix of another path
 	 * 
 	 * @param Path $anotherPath
 	 * @return boolean
@@ -163,8 +169,10 @@ class Path {
 	}
 
 	/**
+	 * Makes the path relative to another given path
 	 * 
 	 * @param Path $base
+	 * @return Path the new relative path
 	 */
 	public function makeRelativeTo(Path $base) {
 		$pathname = clone $this->pathname;
@@ -290,6 +298,9 @@ class Path {
 		return $this->pathname->toString();
 	}
 	
+	/**
+	 * String representation as pathname
+	 */
 	public function __toString() {
 		return $this->toString();
 	}

@@ -5,6 +5,12 @@ class FileDescriptor {
 
 	use FileOperationTrait;
 
+	/**
+	 * Creates a new FileDescriptor from SplFileInfo
+	 * 
+	 * @param \SplFileInfo $fileInfo
+	 * @return FileDescriptor
+	 */
 	public static function fromFileInfo(\SplFileInfo $fileInfo) {
 		return new self($fileInfo->getPathname());
 	}
@@ -40,14 +46,27 @@ class FileDescriptor {
 		return is_dir($this->pathname);
 	}
 
+	/**
+	 * Converts this file descriptor into a file object
+	 * 
+	 * @return File
+	 */
 	public function toFile() {
 		return new File($this->pathname);
 	}
 	
+	/**
+	 * Converts this file descriptor into a directory object
+	 *
+	 * @return Directory
+	 */
 	public function toDirectory() {
 		return new Directory($this->pathname);
 	}
 	
+	/**
+	 * Deletes the file
+	 */
 	public function delete() {
 		if ($this->isDir()) {
 			$this->toDirectory()->delete();
@@ -56,6 +75,9 @@ class FileDescriptor {
 		}
 	}
 
+	/**
+	 * String representation of this file as pathname
+	 */
 	public function __toString() {
 		return $this->pathname;
 	}
