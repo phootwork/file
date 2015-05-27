@@ -93,6 +93,9 @@ class Directory implements \Iterator {
 		return $this->getIterator()->valid();
 	}
 
+	/**
+	 * String representation of this directory as pathname
+	 */
 	public function __toString() {
 		return $this->pathname;
 	}
