@@ -1,7 +1,7 @@
 <?php
 namespace phootwork\file;
 
-use phootwork\lang\String;
+use phootwork\lang\Text;
 use phootwork\lang\ArrayObject;
 
 class Path {
@@ -18,7 +18,7 @@ class Path {
 	}
 
 	private function init($pathname) {
-		$this->pathname = $pathname instanceof String ? $pathname : new String($pathname);
+		$this->pathname = $pathname instanceof Text ? $pathname : new Text($pathname);
 		$this->segments = $this->pathname->split('/');
 		$this->extension = pathinfo($this->pathname, PATHINFO_EXTENSION);
 		$this->filename = basename($this->pathname);
@@ -55,7 +55,7 @@ class Path {
 	/**
 	 * Gets the full pathname
 	 *
-	 * @return String
+	 * @return Text
 	 */
 	public function getPathname() {
 		return $this->pathname;
@@ -70,7 +70,7 @@ class Path {
 	public function setExtension($extension) {
 		$pathinfo = pathinfo($this->pathname);
 		
-		$pathname = new String($pathinfo['dirname']);
+		$pathname = new Text($pathinfo['dirname']);
 		if (!empty($pathinfo['dirname'])) {
 			$pathname = $pathname->append('/');
 		}
@@ -101,7 +101,7 @@ class Path {
 	 * Returns the path obtained from the concatenation of the given path's 
 	 * segments/string to the end of this path.
 	 * 
-	 * @param String|Path $path
+	 * @param string|Text|Path $path
 	 * @return Path
 	 */
 	public function append($path) {
@@ -161,10 +161,10 @@ class Path {
 	/**
 	 * Returns the last segment of this path, or null if it does not have any segments.
 	 * 
-	 * @return String
+	 * @return Text
 	 */
 	public function lastSegment() {
-		return new String($this->segments[count($this->segments) - 1]);
+		return new Text($this->segments[count($this->segments) - 1]);
 	}
 
 	/**
@@ -251,7 +251,7 @@ class Path {
 	 * Returns the specified segment of this path, or null if the path does not have such a segment.
 	 * 
 	 * @param int $index
-	 * @return String
+	 * @return string
 	 */
 	public function segment($index) {
 		if (isset($this->segments[$index])) {
@@ -273,7 +273,7 @@ class Path {
 	/**
 	 * Returns the segments in this path in order.
 	 * 
-	 * @return String[]
+	 * @return ArrayObject<string>
 	 */
 	public function segments() {
 		return $this->segments;
@@ -308,7 +308,7 @@ class Path {
 	 * Returns a copy of this path truncated after the given number of segments.
 	 * 
 	 * @param int $count
-	 * @return Path	
+	 * @return Path
 	 */
 	public function upToSegment($count) {
 		$segments = new ArrayObject();
