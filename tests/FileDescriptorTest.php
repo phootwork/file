@@ -5,7 +5,7 @@ use phootwork\file\File;
 use phootwork\file\Path;
 use phootwork\file\Directory;
 use phootwork\file\FileDescriptor;
-use phootwork\lang\String;
+use phootwork\lang\Text;
 
 class FileDescriptorTest extends FilesystemTest {
 	
@@ -16,7 +16,7 @@ class FileDescriptorTest extends FilesystemTest {
 		
 		$this->assertTrue(is_string(File::create('/path/to/dir')->getPathname()));
 		$this->assertTrue(is_string(Directory::create(new Path('/path/to/dir'))->getPathname()));
-		$this->assertTrue(is_string(FileDescriptor::create(new String('/path/to/dir'))->getPathname()));
+		$this->assertTrue(is_string(FileDescriptor::create(new Text('/path/to/dir'))->getPathname()));
 	}
 
 	public function testNames() {
