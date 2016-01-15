@@ -1,8 +1,8 @@
 <?php
 namespace phootwork\file;
 
-use phootwork\lang\Text;
 use phootwork\lang\ArrayObject;
+use phootwork\lang\Text;
 
 class Path {
 	

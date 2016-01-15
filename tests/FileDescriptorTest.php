@@ -1,10 +1,10 @@
 <?php
 namespace phootwork\file\tests;
 
-use phootwork\file\File;
-use phootwork\file\Path;
 use phootwork\file\Directory;
+use phootwork\file\File;
 use phootwork\file\FileDescriptor;
+use phootwork\file\Path;
 use phootwork\lang\Text;
 
 class FileDescriptorTest extends FilesystemTest {

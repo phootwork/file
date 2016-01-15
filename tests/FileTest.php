@@ -1,9 +1,9 @@
 <?php
 namespace phootwork\file\tests;
 
+use phootwork\file\Directory;
 use phootwork\file\File;
 use phootwork\file\Path;
-use phootwork\file\Directory;
 
 class FileTest extends FilesystemTest {
 
