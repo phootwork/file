@@ -3,7 +3,8 @@ namespace phootwork\file;
 
 use \DateTime;
 use phootwork\file\exception\FileException;
-use phootwork\lang\String;
+use phootwork\lang\Text;
+
 
 trait FileOperationTrait {
 	
@@ -53,7 +54,7 @@ trait FileOperationTrait {
 	/**
 	 * Gets the path to the file
 	 * 
-	 * @return String
+	 * @return Text
 	 */
 	public function getPathname() {
 		return $this->pathname;
@@ -263,7 +264,7 @@ trait FileOperationTrait {
 	 * If the destination file already exists, it will be overwritten.
 	 *
 	 * @throws FileException When an error appeared.
-	 * @param String|Path $destination The destination path.
+	 * @param string|Path $destination The destination path.
 	 */
 	public function copy($destination) {
 		$destination = $this->getDestination($destination);
@@ -277,7 +278,7 @@ trait FileOperationTrait {
 	 * Moves the file
 	 *
 	 * @throws FileException When an error appeared.
-	 * @param String|Path $destination
+	 * @param string|Path $destination
 	 */
 	public function move($destination) {
 		$destination = $this->getDestination($destination);
@@ -305,7 +306,7 @@ trait FileOperationTrait {
 	/**
 	 * Creates a symlink to the given destination
 	 * 
-	 * @param String|Path $destination
+	 * @param string|Path $destination
 	 */
 	public function linkTo($destination) {
 		$target = new FileDescriptor($destination); 

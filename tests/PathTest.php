@@ -3,7 +3,6 @@ namespace phootwork\file\tests;
 
 use phootwork\file\Path;
 use phootwork\lang\ArrayObject;
-use phootwork\file\File;
 
 class PathTest extends \PHPUnit_Framework_TestCase {
 

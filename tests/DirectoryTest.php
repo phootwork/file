@@ -2,8 +2,8 @@
 namespace phootwork\file\tests;
 
 use phootwork\file\Directory;
-use phootwork\lang\ArrayObject;
 use phootwork\file\FileDescriptor;
+use phootwork\lang\ArrayObject;
 
 class DirectoryTest extends FilesystemTest {
 
