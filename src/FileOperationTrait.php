@@ -1,8 +1,8 @@
 <?php
 namespace phootwork\file;
 
-use phootwork\file\exception\FileException;
 use \DateTime;
+use phootwork\file\exception\FileException;
 use phootwork\lang\String;
 
 trait FileOperationTrait {
