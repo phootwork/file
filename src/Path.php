@@ -6,10 +6,19 @@ use phootwork\lang\ArrayObject;
 
 class Path {
 	
+	/** @var ArrayObject */
 	private $segments;
+	
+	/** @var Text */
 	private $pathname;
+	
+	/** @var string */
 	private $dirname;
+	
+	/** @var string */
 	private $filename;
+	
+	/** @var string */
 	private $extension;
 	
 	
@@ -123,6 +132,15 @@ class Path {
 	 */
 	public function hasTrailingSeparator() {
 		return $this->pathname->endsWith('/');
+	}
+	
+	/**
+	 * Returns whether this path is empty
+	 * 
+	 * @return boolean
+	 */
+	public function isEmpty() {
+		return $this->pathname->isEmpty();
 	}
 	
 	/**

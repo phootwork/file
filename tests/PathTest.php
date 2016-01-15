@@ -42,6 +42,7 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('the/path/to/my/file.ext', $p->removeFirstSegments(2)->toString());
 		$this->assertEquals('this/is/the/path/to', $p->removeLastSegments(2)->toString());
 		$this->assertEquals('file.ext', $p->lastSegment());
+		$this->assertEquals('', $p->upToSegment(0)->toString());
 	}
 	
 	public function testTrailingSlash() {
