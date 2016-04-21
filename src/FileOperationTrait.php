@@ -5,7 +5,6 @@ use \DateTime;
 use phootwork\file\exception\FileException;
 use phootwork\lang\Text;
 
-
 trait FileOperationTrait {
 	
 	protected $pathname;
