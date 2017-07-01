@@ -1,18 +1,19 @@
 language: php
 
+dist: trusty
+
 php:
-  - 5.4
-  - 5.5
   - 5.6
   - 7
-  # - hhvm
+  - 7.1
+  - hhvm
   # looks like hhvm has a bug somewhere...
 
 install:
   - composer install
 
 script:
-  - phpunit --coverage-clover=coverage.clover
+  - vendor/bin/phpunit --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
