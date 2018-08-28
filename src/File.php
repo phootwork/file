@@ -52,13 +52,13 @@ class File {
 	 * @throws FileException when something goes wrong
 	 */
 	public function touch($created = null, $lastAccessed = null) {
-		$created = $created instanceof DateTime 
+		$created = $created instanceof DateTime
 			? $created->getTimestamp() 
-			: $created === null ? time() : $created;
+			: ($created === null ? time() : $created);
 		$lastAccessed = $lastAccessed instanceof DateTime
 			? $lastAccessed->getTimestamp()
-			: $lastAccessed === null ? time() : $lastAccessed;
-		
+			: ($lastAccessed === null ? time() : $lastAccessed);
+
 		if (!@touch($this->pathname, $created, $lastAccessed)) {
 			throw new FileException(sprintf('Failed to touch file at %s', $this->pathname));
 		}

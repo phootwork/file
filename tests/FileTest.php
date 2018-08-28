@@ -105,6 +105,18 @@ class FileTest extends FilesystemTest {
 		$file = new File($this->root->url() . '/dir/composer.json');
 		$file->touch();
 	}
+
+	public function testTouchWithDateTime() {
+		$createDate = new \DateTime('2018-08-27');
+		$modDate = new \DateTime('2018-08-29');
+		$dir = new Directory($this->root->url() . '/dir');
+		$dir->make();
+		$file = new File($this->root->url() . '/dir/composer.json');
+		$file->touch($createDate, $modDate);
+
+		$this->assertEquals($createDate, $file->getCreatedAt());
+		$this->assertEquals($modDate, $file->getLastAccessedAt());
+	}
 	
 	public function testDelete() {
 		$dir = new Directory($this->root->url() . '/dir');
