@@ -23,6 +23,10 @@ class File {
 			throw new FileException(sprintf('File does not exist: %s', $this->getFilename()));
 		}
 
+		if (!$this->isReadable()) {
+			throw new FileException(sprintf('You don\'t have permissions to access %s file', $this->getFilename()));
+		}
+
 		return file_get_contents($this->pathname);
 	}
 

@@ -1,6 +1,7 @@
 <?php
 namespace phootwork\file\tests;
 
+use org\bovigo\vfs\vfsStream;
 use phootwork\file\Directory;
 use phootwork\file\File;
 use phootwork\file\Path;
@@ -13,6 +14,16 @@ class FileTest extends FilesystemTest {
 		$file->write($json);
 
 		$this->assertEquals($json, $file->read());
+	}
+
+	/**
+	 * @expectedException phootwork\file\exception\FileException
+	 */
+	public function testReadUnreadableFile()
+	{
+		$testFile = vfsStream::newFile('nonreadable.txt', 000)->at($this->root)->setContent('I am not readable.');
+		$file = new File($testFile->url());
+		$file->read();
 	}
 	
 	/**
