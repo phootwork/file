@@ -1,6 +1,7 @@
 <?php
 namespace phootwork\file\tests;
 
+use org\bovigo\vfs\vfsStream;
 use phootwork\file\Directory;
 use phootwork\file\File;
 use phootwork\file\Path;

@@ -19,7 +19,14 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		$p = $p->append('to');
 		$this->assertEquals('another/path/to', $p->getPathname());
 		$p = $p->append(new Path('my/stuff'));
-		$this->assertEquals('another/path/to/my/stuff', $p->getPathname());		
+		$this->assertEquals('another/path/to/my/stuff', $p->getPathname());
+
+		$p = new Path('file:///this/is/the/path/to/my/file.ext');
+		$this->assertTrue($p->isStream());
+		$this->assertEquals('file:///this/is/the/path/to/my', $p->getDirname());
+		$this->assertEquals('file.ext', $p->getFilename());
+		$this->assertEquals('ext', $p->getExtension());
+		$this->assertEquals('file:///this/is/the/path/to/my/file.ext', $p->getPathname());
 	}
 	
 	public function testExtension() {
@@ -32,6 +39,21 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 	public function testSegments() {
 		$p = new Path('this/is/the/path/to/my/file.ext');
 		
+		$this->assertEquals(new ArrayObject(['this', 'is', 'the', 'path', 'to', 'my', 'file.ext']), $p->segments());
+		$this->assertEquals(7, $p->segmentCount());
+		$this->assertNull($p->segment(-1));
+		$this->assertEquals('is', $p->segment(1));
+		$this->assertEquals('file.ext', $p->lastSegment());
+		$this->assertEquals('this/is/the', $p->upToSegment(3)->toString());
+		$this->assertEquals('the/path/to/my/file.ext', $p->removeFirstSegments(2)->toString());
+		$this->assertEquals('this/is/the/path/to', $p->removeLastSegments(2)->toString());
+		$this->assertEquals('file.ext', $p->lastSegment());
+		$this->assertEquals('', $p->upToSegment(0)->toString());
+	}
+
+	public function testSegmentsStream() {
+		$p = new Path('ftp://this/is/the/path/to/my/file.ext');
+
 		$this->assertEquals(new ArrayObject(['this', 'is', 'the', 'path', 'to', 'my', 'file.ext']), $p->segments());
 		$this->assertEquals(7, $p->segmentCount());
 		$this->assertNull($p->segment(-1));
@@ -81,6 +103,10 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		
 		$abs = new Path(__FILE__);
 		$this->assertTrue($abs->isAbsolute());
+
+		$stream = new Path('file:///Home/Documents');
+		$this->assertTrue($stream->isAbsolute());
+
 	}
 	
 	public function testEquals() {
@@ -97,4 +123,18 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse($current->equals($cwd));
 	}
 
+	public function testAppend() {
+		$current = new Path('/home/user');
+		$new = $current->append('path/to/append');
+		$this->assertEquals('/home/user/path/to/append', $new->getPathname()->toString());
+
+		$vfs = new Path('vfs://root/home/user');
+		$newVfs = $vfs->append('path/to/append');
+		$this->assertEquals('vfs://root/home/user/path/to/append', $newVfs->getPathname()->toString());
+
+		//Is it a correct behavior?
+		$current = new Path('/home/user/spiderman.txt');
+		$new = $current->append('path/to/append');
+		$this->assertEquals('/home/user/spiderman.txt/path/to/append', $new->getPathname()->toString());
+	}
 }

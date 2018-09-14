@@ -19,7 +19,6 @@ class Directory implements \Iterator {
 	 * 
 	 * @throws FileException when something goes wrong
 	 * @param number $mode
-	 * @return boolean true on success; false if it fails
 	 */
 	public function make($mode = 0777) {
 		if (!$this->exists() && !@mkdir($this->pathname, $mode, true)) {
@@ -31,7 +30,6 @@ class Directory implements \Iterator {
 	 * Recursively deletes the directory
 	 *
 	 * @throws FileException when something goes wrong
-	 * @return boolean true on success; false if it fails
 	 */
 	public function delete() {
 		foreach ($this as $file) {
