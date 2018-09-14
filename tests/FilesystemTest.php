@@ -2,9 +2,11 @@
 namespace phootwork\file\tests;
 
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 
 abstract class FilesystemTest extends \PHPUnit_Framework_TestCase {
 
+	/** @var vfsStreamDirectory */
 	protected $root;
 	
 	public function setUp() {

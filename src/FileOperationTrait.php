@@ -6,7 +6,8 @@ use phootwork\file\exception\FileException;
 use phootwork\lang\Text;
 
 trait FileOperationTrait {
-	
+
+	/** @var string */
 	protected $pathname;
 	
 	/**
@@ -53,7 +54,7 @@ trait FileOperationTrait {
 	/**
 	 * Gets the path to the file
 	 * 
-	 * @return Text
+	 * @return string
 	 */
 	public function getPathname() {
 		return $this->pathname;
