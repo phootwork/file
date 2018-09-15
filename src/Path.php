@@ -8,6 +8,9 @@ class Path {
 	
 	/** @var ArrayObject */
 	private $segments;
+
+	/** @var string */
+	private $stream;
 	
 	/** @var Text */
 	private $pathname;
@@ -28,6 +31,12 @@ class Path {
 
 	private function init($pathname) {
 		$this->pathname = $pathname instanceof Text ? $pathname : new Text($pathname);
+
+		if ($this->pathname->match('/^[a-zA-Z]+:\/\//')) {
+			$this->stream = $this->pathname->slice(0, $this->pathname->indexOf('://') + 3)->toString();
+			$this->pathname = $this->pathname->substring($this->pathname->indexOf('://') + 3);
+		}
+
 		$this->segments = $this->pathname->split('/');
 		$this->extension = pathinfo($this->pathname, PATHINFO_EXTENSION);
 		$this->filename = basename($this->pathname);
@@ -58,7 +67,7 @@ class Path {
 	 * @return string
 	 */
 	public function getDirname() {
-		return $this->dirname;
+		return $this->stream . $this->dirname;
 	}
 	
 	/**
@@ -67,7 +76,14 @@ class Path {
 	 * @return Text
 	 */
 	public function getPathname() {
-		return $this->pathname;
+		return new Text ($this->stream . $this->pathname);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isStream() {
+		return (null !== $this->stream);
 	}
 	
 	/**
@@ -122,7 +138,7 @@ class Path {
 			$this->addTrailingSeparator();
 		}
 		
-		return new Path($this->pathname->append($path));
+		return new Path($this->getPathname()->append($path));
 	}
 
 	/**
@@ -149,11 +165,16 @@ class Path {
 	 * @return boolean
 	 */
 	public function isAbsolute() {
+		//Stream urls are always absolute
+		if ($this->isStream()) {
+			return true;
+		}
+
 		if (realpath($this->pathname->toString()) == $this->pathname->toString()) {
 			return true;
 		}
 		
-		if ($this->pathname->length() == 0 || $this->pathname->charAt(0) == '.') {
+		if ($this->pathname->length() == 0 || $this->pathname->startsWith('.')) {
 			return false;
 		}
 		
@@ -163,7 +184,7 @@ class Path {
 		}
 
 		// A path starting with / or \ is absolute; anything else is relative.
-		return $this->pathname->charAt(0) == '/' || $this->pathname->charAt(0) == '\\';
+		return $this->pathname->startsWith('/') || $this->pathname->startsWith('\\');
 	}
 	
 	/**
@@ -303,7 +324,7 @@ class Path {
 	 * @return FileDescriptor
 	 */
 	public function toFileDescriptor() {
-		return new FileDescriptor($this->pathname);
+		return new FileDescriptor($this->getPathname());
 	}
 	
 	/**
@@ -312,7 +333,7 @@ class Path {
 	 * @return string A string representation of this path
 	 */
 	public function toString() {
-		return $this->pathname->toString();
+		return $this->stream . $this->pathname;
 	}
 	
 	/**
@@ -346,18 +367,14 @@ class Path {
 	public function equals($anotherPath) {
 		$anotherPath = $anotherPath instanceof Path ? $anotherPath : new Path($anotherPath);
 
-		// do something else, when path's are urls
-		$regexp = '/^[a-zA-Z]+:\/\//';
-		$thisUrl = $this->pathname->match($regexp);
-		$anotherUrl = $anotherPath->getPathname()->match($regexp);
-
-		if ($thisUrl ^ $anotherUrl) {
+		if ($this->isStream() ^ $anotherPath->isStream()) {
 			return false;
-		} else if ($thisUrl && $anotherUrl) {
-			return $this->pathname->equals($anotherPath->getPathname());
+		}
+
+		if ($this->isStream() && $anotherPath->isStream()) {
+			return $this->toString() === $anotherPath->toString();
 		}
 
 		return realpath($this->pathname->toString()) == realpath($anotherPath->toString());
 	}
-
 }
