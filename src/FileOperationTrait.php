@@ -87,7 +87,7 @@ trait FileOperationTrait {
 	 * @return DateTime
 	 */
 	public function getCreatedAt() {
-		$timestamp = filectime($this->pathname);
+		$timestamp = filemtime($this->pathname);
 		$time = new DateTime();
 		$time->setTimestamp($timestamp);
 		return $time;

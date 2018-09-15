@@ -15,6 +15,16 @@ class FileTest extends FilesystemTest {
 
 		$this->assertEquals($json, $file->read());
 	}
+
+	/**
+	 * @expectedException phootwork\file\exception\FileException
+	 */
+	public function testReadUnreadableFile()
+	{
+		$testFile = vfsStream::newFile('nonreadable.txt', 000)->at($this->root)->setContent('I am not readable.');
+		$file = new File($testFile->url());
+		$file->read();
+	}
 	
 	/**
 	 * @expectedException phootwork\file\exception\FileException
@@ -94,6 +104,18 @@ class FileTest extends FilesystemTest {
 		$dir->make(0555);
 		$file = new File($this->root->url() . '/dir/composer.json');
 		$file->touch();
+	}
+
+	public function testTouchWithDateTime() {
+		$createDate = new \DateTime('2018-08-27');
+		$modDate = new \DateTime('2018-08-29');
+		$dir = new Directory($this->root->url() . '/dir');
+		$dir->make();
+		$file = new File($this->root->url() . '/dir/composer.json');
+		$file->touch($createDate, $modDate);
+
+		$this->assertEquals($createDate, $file->getCreatedAt());
+		$this->assertEquals($modDate, $file->getLastAccessedAt());
 	}
 	
 	public function testDelete() {
