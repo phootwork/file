@@ -3,16 +3,15 @@ namespace phootwork\file;
 
 use \DateTime;
 use phootwork\file\exception\FileException;
-use phootwork\lang\Text;
 
 trait FileOperationTrait {
 
 	/** @var string */
 	protected $pathname;
-	
+
 	/**
 	 * Static instantiator
-	 * 
+	 *
 	 * @param string $pathname
 	 * @return static
 	 */
@@ -26,7 +25,7 @@ trait FileOperationTrait {
 
 	/**
 	 * Returns the file extensions
-	 * 
+	 *
 	 * @return string the file extension
 	 */
 	public function getExtension() {
@@ -35,31 +34,31 @@ trait FileOperationTrait {
 
 	/**
 	 * Returns the filename
-	 * 
+	 *
 	 * @return string the filename
 	 */
 	public function getFilename() {
 		return basename($this->pathname);
 	}
-	
+
 	/**
 	 * Gets the path without filename
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getDirname() {
 		return dirname($this->pathname);
 	}
-	
+
 	/**
 	 * Gets the path to the file
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getPathname() {
 		return $this->pathname;
 	}
-	
+
 	/**
 	 * Converts the path into a path object
 	 *
@@ -68,10 +67,10 @@ trait FileOperationTrait {
 	public function toPath() {
 		return new Path($this->pathname);
 	}
-	
+
 	/**
 	 * Gets last access time.
-	 * 
+	 *
 	 * @return DateTime
 	 */
 	public function getLastAccessedAt() {
@@ -80,7 +79,7 @@ trait FileOperationTrait {
 		$time->setTimestamp($timestamp);
 		return $time;
 	}
-	
+
 	/**
 	 * Gets the created time.
 	 *
@@ -92,7 +91,7 @@ trait FileOperationTrait {
 		$time->setTimestamp($timestamp);
 		return $time;
 	}
-	
+
 	/**
 	 * Gets last modified time.
 	 *
@@ -104,25 +103,25 @@ trait FileOperationTrait {
 		$time->setTimestamp($timestamp);
 		return $time;
 	}
-	
+
 	/**
 	 * Gets file inode
-	 * 
-	 * @return int Returns the inode number of the file, or FALSE on failure. 
+	 *
+	 * @return int Returns the inode number of the file, or FALSE on failure.
 	 */
 	public function getInode() {
 		return fileinode($this->pathname);
 	}
-	
+
 	/**
 	 * Gets file group
-	 * 
+	 *
 	 * @return int Returns the group ID, or FALSE if an error occurs.
 	 */
 	public function getGroup() {
 		return filegroup($this->pathname);
 	}
-	
+
 	/**
 	 * Gets file owner
 	 *
@@ -131,20 +130,20 @@ trait FileOperationTrait {
 	public function getOwner() {
 		return fileowner($this->pathname);
 	}
-	
+
 	/**
 	 * Gets file permissions
-	 * 
-	 * @return int Returns the file's permissions as a numeric mode. Lower bits of this 
-	 * 		mode are the same as the permissions expected by chmod(), however on most platforms 
-	 * 		the return value will also include information on the type of file given as filename. 
-	 * 		The examples below demonstrate how to test the return value for specific permissions 
-	 * 		and file types on POSIX systems, including Linux and Mac OS X. 
+	 *
+	 * @return int Returns the file's permissions as a numeric mode. Lower bits of this
+	 * 		mode are the same as the permissions expected by chmod(), however on most platforms
+	 * 		the return value will also include information on the type of file given as filename.
+	 * 		The examples below demonstrate how to test the return value for specific permissions
+	 * 		and file types on POSIX systems, including Linux and Mac OS X.
 	 */
 	public function getPermissions() {
 		return fileperms($this->pathname);
 	}
-	
+
 	/**
 	 * Checks its existance
 	 *
@@ -154,7 +153,7 @@ trait FileOperationTrait {
 	public function exists() {
 		return file_exists($this->pathname);
 	}
-	
+
 	/**
 	 * Tells whether is executable
 	 *
@@ -163,7 +162,7 @@ trait FileOperationTrait {
 	public function isExecutable() {
 		return is_executable($this->pathname);
 	}
-	
+
 	/**
 	 * Tells whether is readable
 	 *
@@ -172,11 +171,11 @@ trait FileOperationTrait {
 	public function isReadable() {
 		return is_readable($this->pathname);
 	}
-	
+
 	/**
 	 * Tells whether is writable
-	 * 
-	 * @return boolean Returns TRUE if exists and is writable. 
+	 *
+	 * @return boolean Returns TRUE if exists and is writable.
 	 */
 	public function isWritable() {
 		return is_writable($this->pathname);
@@ -190,10 +189,10 @@ trait FileOperationTrait {
 	public function isLink() {
 		return is_link($this->pathname);
 	}
-	
+
 	/**
 	 * Returns the target if this is a symbolic link
-	 * 
+	 *
 	 * @see #isLink
 	 * @return Path|null The target path or null if this isn't a link
 	 */
@@ -203,7 +202,7 @@ trait FileOperationTrait {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Attempts to change the group.
 	 *
@@ -220,7 +219,7 @@ trait FileOperationTrait {
 			return chgrp($this->pathname, $group);
 		}
 	}
-	
+
 	/**
 	 * Attempts to change the mode.
 	 *
@@ -241,7 +240,7 @@ trait FileOperationTrait {
 			return chmod($this->pathname, $mode);
 		}
 	}
-	
+
 	/**
 	 * Changes file owner
 	 *
@@ -257,7 +256,7 @@ trait FileOperationTrait {
 			return chown($this->pathname, $user);
 		}
 	}
-	
+
 	/**
 	 * Copies the file
 	 *
@@ -268,12 +267,12 @@ trait FileOperationTrait {
 	 */
 	public function copy($destination) {
 		$destination = $this->getDestination($destination);
-	
+
 		if (!@copy($this->getPathname(), $destination)) {
 			throw new FileException(sprintf('Failed to copy %s to %s', $this->pathname, $destination));
 		}
 	}
-	
+
 	/**
 	 * Moves the file
 	 *
@@ -289,10 +288,10 @@ trait FileOperationTrait {
 			throw new FileException(sprintf('Failed to move %s to %s', $this->pathname, $destination));
 		}
 	}
-	
+
 	/**
 	 * Transforms destination into path and ensures, parent directory exists
-	 * 
+	 *
 	 * @param string $destination
 	 * @return Path
 	 */
@@ -302,17 +301,17 @@ trait FileOperationTrait {
 		$targetDir->make();
 		return $destination;
 	}
-	
+
 	/**
 	 * Creates a symlink to the given destination
-	 * 
+	 *
 	 * @param string|Path $destination
 	 */
 	public function linkTo($destination) {
-		$target = new FileDescriptor($destination); 
+		$target = new FileDescriptor($destination);
 		$targetDir = new Directory($target->getDirname());
 		$targetDir->make();
-		
+
 		$ok = false;
 		if ($target->isLink()) {
 			if (!$target->getLinkTarget()->equals($this->pathname)) {
