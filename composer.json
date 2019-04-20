@@ -37,5 +37,6 @@
 	"scripts" : {
 		"test" : "phpunit",
 		"api" : "sami.php update sami.php"
-	}
+	},
+	"homepage" : "https://phootwork.github.io/file/"
 }
