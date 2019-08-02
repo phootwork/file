@@ -23,6 +23,30 @@ Install via Composer:
 composer require phootwork/file
 ```
 
+## Running tests
+
+This package is a part of the Phootwork library. In order to run the test suite, you have to download the full library.
+
+```
+git clone https://github.com/phootwork/phootwork
+```
+Then install the dependencies via composer:
+
+```
+composer install
+```
+Now, run the *file* test suite:
+
+```
+vendor/bin/phpunit --testsuite file
+```
+If you want to run the whole library tests, simply run:
+
+```
+vendor/bin/phpunit
+```
+
+
 ## Contact
 
 Report issues at the github [Issue Tracker](https://github.com/phootwork/file/issues).
