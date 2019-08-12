@@ -1,5 +1,16 @@
-<?php
+<?php declare(strict_types=1);
+/**
+ * This file is part of the Phootwork package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license MIT License
+ * @copyright Thomas Gossmann
+ */
+
 namespace phootwork\file;
+
+use phootwork\lang\Text;
 
 class FileDescriptor {
 
@@ -11,10 +22,15 @@ class FileDescriptor {
 	 * @param \SplFileInfo $fileInfo
 	 * @return FileDescriptor
 	 */
-	public static function fromFileInfo(\SplFileInfo $fileInfo) {
+	public static function fromFileInfo(\SplFileInfo $fileInfo): FileDescriptor {
 		return new self($fileInfo->getPathname());
 	}
 
+	/**
+	 * FileDescriptor constructor.
+	 *
+	 * @param string|Text $filename
+	 */
 	public function __construct($filename) {
 		$this->init($filename);
 	}
@@ -24,7 +40,7 @@ class FileDescriptor {
 	 *
 	 * @return boolean Returns TRUE if the filename exists and is a regular file, FALSE otherwise.
 	 */
-	public function isFile() {
+	public function isFile(): bool {
 		return is_file($this->pathname);
 	}
 	
@@ -33,7 +49,7 @@ class FileDescriptor {
 	 *
 	 * @return boolean
 	 */
-	public function isDot() {
+	public function isDot(): bool {
 		return $this->getFilename() == '.' || $this->getFilename() == '..';
 	}
 	
@@ -42,7 +58,7 @@ class FileDescriptor {
 	 *
 	 * @return boolean Returns TRUE if the filename exists and is a directory, FALSE otherwise.
 	 */
-	public function isDir() {
+	public function isDir(): bool {
 		return is_dir($this->pathname);
 	}
 
@@ -51,7 +67,7 @@ class FileDescriptor {
 	 * 
 	 * @return File
 	 */
-	public function toFile() {
+	public function toFile(): File {
 		return new File($this->pathname);
 	}
 	
@@ -60,14 +76,16 @@ class FileDescriptor {
 	 *
 	 * @return Directory
 	 */
-	public function toDirectory() {
+	public function toDirectory(): Directory {
 		return new Directory($this->pathname);
 	}
-	
+
 	/**
 	 * Deletes the file
+	 *
+	 * @throws exception\FileException
 	 */
-	public function delete() {
+	public function delete(): void {
 		if ($this->isDir()) {
 			$this->toDirectory()->delete();
 		} else {
@@ -78,7 +96,7 @@ class FileDescriptor {
 	/**
 	 * String representation of this file as pathname
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return $this->pathname;
 	}
 }
