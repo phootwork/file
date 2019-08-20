@@ -1,15 +1,32 @@
-<?php
+<?php declare(strict_types=1);
+/**
+ * This file is part of the Phootwork package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license MIT License
+ * @copyright Thomas Gossmann
+ */
+
 namespace phootwork\file;
 
 use \DirectoryIterator;
+use \Iterator;
 use phootwork\file\exception\FileException;
+use phootwork\lang\Text;
 
-class Directory implements \Iterator {
+class Directory implements Iterator {
 	
 	use FileOperationTrait;
-	
+
+	/** @var DirectoryIterator|null */
 	private $iterator;
-	
+
+	/**
+	 * Directory constructor.
+	 *
+	 * @param string|Text $filename
+	 */
 	public function __construct($filename) {
 		$this->init($filename);
 	}
@@ -18,9 +35,9 @@ class Directory implements \Iterator {
 	 * Creates the directory
 	 * 
 	 * @throws FileException when something goes wrong
-	 * @param number $mode
+	 * @param int $mode
 	 */
-	public function make($mode = 0777) {
+	public function make(int $mode = 0777): void {
 		if (!$this->exists() && !@mkdir($this->pathname, $mode, true)) {
 			throw new FileException(sprintf('Failed to create directory "%s"', $this->pathname));
 		}
@@ -31,7 +48,7 @@ class Directory implements \Iterator {
 	 *
 	 * @throws FileException when something goes wrong
 	 */
-	public function delete() {
+	public function delete(): void {
 		foreach ($this as $file) {
 			if (!$file->isDot()) {
 				$file->delete();
@@ -48,10 +65,11 @@ class Directory implements \Iterator {
 	 * 
 	 * @return DirectoryIterator
 	 */
-	private function getIterator() {
+	private function getIterator(): DirectoryIterator {
 		if ($this->iterator === null) {
 			$this->iterator = new DirectoryIterator($this->pathname);
 		}
+
 		return $this->iterator;
 	}
 	
@@ -59,7 +77,7 @@ class Directory implements \Iterator {
 	 * @return FileDescriptor
 	 * @internal
 	 */
-	public function current () {
+	public function current (): FileDescriptor {
 		return FileDescriptor::fromFileInfo($this->getIterator()->current());
 	}
 
@@ -74,14 +92,14 @@ class Directory implements \Iterator {
 	 * @internal
 	 */
 	public function next () {
-		return $this->getIterator()->next();
+		$this->getIterator()->next();
 	}
 
 	/**
 	 * @internal
 	 */
 	public function rewind () {
-		return $this->getIterator()->rewind();
+		$this->getIterator()->rewind();
 	}
 
 	/**
@@ -94,7 +112,7 @@ class Directory implements \Iterator {
 	/**
 	 * String representation of this directory as pathname
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return $this->pathname;
 	}
 }
