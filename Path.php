@@ -36,9 +36,6 @@ class Path {
 	 * Path constructor.
 	 *
 	 * @param string|Text $pathname
-	 *
-	 * @todo does it make sense to accept empty strings as $pathname?
-	 *       if yes, maybe we should add a Path::setPathname method
 	 */
 	public function __construct($pathname) {
 		$this->init($pathname);
@@ -88,7 +85,6 @@ class Path {
 		return $this->stream . $this->dirname;
 	}
 
-	//@todo Why this function returns Text and the other return string?
 	/**
 	 * Gets the full pathname
 	 *
