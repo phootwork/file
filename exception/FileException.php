@@ -7,9 +7,7 @@
  * @license MIT License
  * @copyright Thomas Gossmann
  */
-
 namespace phootwork\file\exception;
 
 class FileException extends \Exception {
-
 }
