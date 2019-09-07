@@ -15,400 +15,400 @@ use phootwork\lang\Text;
 class Path {
 
 	/** @var ArrayObject */
-    private $segments;
+	private $segments;
 
-    /** @var string */
-    private $stream = '';
+	/** @var string */
+	private $stream = '';
 
-    /** @var Text */
-    private $pathname;
+	/** @var Text */
+	private $pathname;
 
-    /** @var string */
-    private $dirname;
+	/** @var string */
+	private $dirname;
 
-    /** @var string */
-    private $filename;
+	/** @var string */
+	private $filename;
 
-    /** @var string */
-    private $extension;
+	/** @var string */
+	private $extension;
 
-    /**
-     * Path constructor.
-     *
-     * @param string|Text $pathname
-     *
-     * @todo does it make sense to accept empty strings as $pathname?
-     *       if yes, maybe we should add a Path::setPathname method
-     */
-    public function __construct($pathname) {
-        $this->init($pathname);
-    }
+	/**
+	 * Path constructor.
+	 *
+	 * @param string|Text $pathname
+	 *
+	 * @todo does it make sense to accept empty strings as $pathname?
+	 *       if yes, maybe we should add a Path::setPathname method
+	 */
+	public function __construct($pathname) {
+		$this->init($pathname);
+	}
 
-    /**
-     * @param string|Text $pathname
-     */
-    private function init($pathname): void {
-        $this->pathname = $pathname instanceof Text ? $pathname : new Text($pathname);
+	/**
+	 * @param string|Text $pathname
+	 */
+	private function init($pathname): void {
+		$this->pathname = $pathname instanceof Text ? $pathname : new Text($pathname);
 
-        if ($this->pathname->match('/^[a-zA-Z]+:\/\//')) {
-            $this->stream = $this->pathname->slice(0, (int) $this->pathname->indexOf('://') + 3)->toString();
-            $this->pathname = $this->pathname->substring((int) $this->pathname->indexOf('://') + 3);
-        }
+		if ($this->pathname->match('/^[a-zA-Z]+:\/\//')) {
+			$this->stream = $this->pathname->slice(0, (int) $this->pathname->indexOf('://') + 3)->toString();
+			$this->pathname = $this->pathname->substring((int) $this->pathname->indexOf('://') + 3);
+		}
 
-        $this->segments = $this->pathname->split('/');
-        $this->extension = pathinfo($this->pathname->toString(), PATHINFO_EXTENSION);
-        $this->filename = basename($this->pathname->toString());
-        $this->dirname = dirname($this->pathname->toString());
-    }
+		$this->segments = $this->pathname->split('/');
+		$this->extension = pathinfo($this->pathname->toString(), PATHINFO_EXTENSION);
+		$this->filename = basename($this->pathname->toString());
+		$this->dirname = dirname($this->pathname->toString());
+	}
 
-    /**
-     * Returns the extension
-     * 
-     * @return string the extension
-     */
-    public function getExtension(): string {
-        return $this->extension;
-    }
+	/**
+	 * Returns the extension
+	 * 
+	 * @return string the extension
+	 */
+	public function getExtension(): string {
+		return $this->extension;
+	}
 
-    /**
-     * Returns the filename
-     *
-     * @return string the filename
-     */
-    public function getFilename(): string {
-        return $this->filename;
-    }
+	/**
+	 * Returns the filename
+	 *
+	 * @return string the filename
+	 */
+	public function getFilename(): string {
+		return $this->filename;
+	}
 
-    /**
-     * Gets the path without filename
-     *
-     * @return string
-     */
-    public function getDirname(): string {
-        return $this->stream . $this->dirname;
-    }
+	/**
+	 * Gets the path without filename
+	 *
+	 * @return string
+	 */
+	public function getDirname(): string {
+		return $this->stream . $this->dirname;
+	}
 
-    //@todo Why this function returns Text and the other return string?
-    /**
-     * Gets the full pathname
-     *
-     * @return Text
-     */
-    public function getPathname(): Text {
-        return new Text($this->stream . $this->pathname);
-    }
+	//@todo Why this function returns Text and the other return string?
+	/**
+	 * Gets the full pathname
+	 *
+	 * @return Text
+	 */
+	public function getPathname(): Text {
+		return new Text($this->stream . $this->pathname);
+	}
 
-    /**
-     * @return bool
-     */
-    public function isStream(): bool {
-        return ('' !== $this->stream);
-    }
+	/**
+	 * @return bool
+	 */
+	public function isStream(): bool {
+		return ('' !== $this->stream);
+	}
 
-    /**
-     * Changes the extension of this path
-     * 
-     * @param string $extension the new extension
-     *
-     * @return $this
-     */
-    public function setExtension(string $extension): self {
-        $pathinfo = pathinfo($this->pathname->toString());
+	/**
+	 * Changes the extension of this path
+	 * 
+	 * @param string $extension the new extension
+	 *
+	 * @return $this
+	 */
+	public function setExtension(string $extension): self {
+		$pathinfo = pathinfo($this->pathname->toString());
 
-        $pathname = new Text($pathinfo['dirname']);
-        if (!empty($pathinfo['dirname'])) {
-            $pathname = $pathname->append('/');
-        }
+		$pathname = new Text($pathinfo['dirname']);
+		if (!empty($pathinfo['dirname'])) {
+			$pathname = $pathname->append('/');
+		}
 
-        $this->init($pathname
+		$this->init($pathname
 			->append($pathinfo['filename'])
 			->append('.')
 			->append($extension))
 		;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Returns a path with the same segments as this path but with a 
-     * trailing separator added (if not already existent).
-     * 
-     * @return $this
-     */
-    public function addTrailingSeparator(): self {
-        if (!$this->hasTrailingSeparator()) {
-            $this->pathname = $this->pathname->append('/');
-        }
+	/**
+	 * Returns a path with the same segments as this path but with a 
+	 * trailing separator added (if not already existent).
+	 * 
+	 * @return $this
+	 */
+	public function addTrailingSeparator(): self {
+		if (!$this->hasTrailingSeparator()) {
+			$this->pathname = $this->pathname->append('/');
+		}
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Returns the path obtained from the concatenation of the given path's 
-     * segments/string to the end of this path.
-     * 
-     * @param string|Text|Path $path
-     *
-     * @return Path
-     */
-    public function append($path): self {
-        if ($path instanceof self) {
-            $path = $path->getPathname();
-        }
+	/**
+	 * Returns the path obtained from the concatenation of the given path's 
+	 * segments/string to the end of this path.
+	 * 
+	 * @param string|Text|Path $path
+	 *
+	 * @return Path
+	 */
+	public function append($path): self {
+		if ($path instanceof self) {
+			$path = $path->getPathname();
+		}
 
-        if (!$this->hasTrailingSeparator()) {
-            $this->addTrailingSeparator();
-        }
+		if (!$this->hasTrailingSeparator()) {
+			$this->addTrailingSeparator();
+		}
 
-        return new self($this->getPathname()->append($path));
-    }
+		return new self($this->getPathname()->append($path));
+	}
 
-    /**
-     * Returns whether this path has a trailing separator.
-     * 
-     * @return bool
-     */
-    public function hasTrailingSeparator(): bool {
-        return $this->pathname->endsWith('/');
-    }
+	/**
+	 * Returns whether this path has a trailing separator.
+	 * 
+	 * @return bool
+	 */
+	public function hasTrailingSeparator(): bool {
+		return $this->pathname->endsWith('/');
+	}
 
-    /**
-     * Returns whether this path is empty
-     * 
-     * @return bool
-     */
-    public function isEmpty(): bool {
-        return $this->pathname->isEmpty();
-    }
+	/**
+	 * Returns whether this path is empty
+	 * 
+	 * @return bool
+	 */
+	public function isEmpty(): bool {
+		return $this->pathname->isEmpty();
+	}
 
-    /**
-     * Returns whether this path is an absolute path.
-     * 
-     * @return bool
-     */
-    public function isAbsolute(): bool {
-        //Stream urls are always absolute
-        if ($this->isStream()) {
-            return true;
-        }
+	/**
+	 * Returns whether this path is an absolute path.
+	 * 
+	 * @return bool
+	 */
+	public function isAbsolute(): bool {
+		//Stream urls are always absolute
+		if ($this->isStream()) {
+			return true;
+		}
 
-        if (realpath($this->pathname->toString()) == $this->pathname->toString()) {
-            return true;
-        }
+		if (realpath($this->pathname->toString()) == $this->pathname->toString()) {
+			return true;
+		}
 
-        if ($this->pathname->length() == 0 || $this->pathname->startsWith('.')) {
-            return false;
-        }
+		if ($this->pathname->length() == 0 || $this->pathname->startsWith('.')) {
+			return false;
+		}
 
-        // Windows allows absolute paths like this.
-        if ($this->pathname->match('#^[a-zA-Z]:\\\\#')) {
-            return true;
-        }
+		// Windows allows absolute paths like this.
+		if ($this->pathname->match('#^[a-zA-Z]:\\\\#')) {
+			return true;
+		}
 
-        // A path starting with / or \ is absolute; anything else is relative.
-        return $this->pathname->startsWith('/') || $this->pathname->startsWith('\\');
-    }
+		// A path starting with / or \ is absolute; anything else is relative.
+		return $this->pathname->startsWith('/') || $this->pathname->startsWith('\\');
+	}
 
-    /**
-     * Checks whether this path is the prefix of another path
-     * 
-     * @param Path $anotherPath
-     *
-     * @return bool
-     */
-    public function isPrefixOf(self $anotherPath): bool {
-        return $anotherPath->getPathname()->startsWith($this->pathname);
-    }
+	/**
+	 * Checks whether this path is the prefix of another path
+	 * 
+	 * @param Path $anotherPath
+	 *
+	 * @return bool
+	 */
+	public function isPrefixOf(self $anotherPath): bool {
+		return $anotherPath->getPathname()->startsWith($this->pathname);
+	}
 
-    /**
-     * Returns the last segment of this path, or null if it does not have any segments.
-     * 
-     * @return Text
-     */
-    public function lastSegment(): Text {
-        return new Text($this->segments[count($this->segments) - 1]);
-    }
+	/**
+	 * Returns the last segment of this path, or null if it does not have any segments.
+	 * 
+	 * @return Text
+	 */
+	public function lastSegment(): Text {
+		return new Text($this->segments[count($this->segments) - 1]);
+	}
 
-    /**
-     * Makes the path relative to another given path
-     * 
-     * @param Path $base
-     *
-     * @return Path the new relative path
-     */
-    public function makeRelativeTo(self $base): self {
-        $pathname = clone $this->pathname;
+	/**
+	 * Makes the path relative to another given path
+	 * 
+	 * @param Path $base
+	 *
+	 * @return Path the new relative path
+	 */
+	public function makeRelativeTo(self $base): self {
+		$pathname = clone $this->pathname;
 
-        return new self($pathname->replace($base->removeTrailingSeparator()->getPathname(), ''));
-    }
+		return new self($pathname->replace($base->removeTrailingSeparator()->getPathname(), ''));
+	}
 
-    /**
-     * Returns a count of the number of segments which match in this 
-     * path and the given path, comparing in increasing segment number order.
-     * 
-     * @param Path $anotherPath
-     *
-     * @return int
-     */
-    public function matchingFirstSegments(self $anotherPath): int {
-        $segments = $anotherPath->segments();
-        $count = 0;
-        foreach ($this->segments as $i => $segment) {
-            if ($segment != $segments[$i]) {
-                break;
-            }
-            $count++;
-        }
+	/**
+	 * Returns a count of the number of segments which match in this 
+	 * path and the given path, comparing in increasing segment number order.
+	 * 
+	 * @param Path $anotherPath
+	 *
+	 * @return int
+	 */
+	public function matchingFirstSegments(self $anotherPath): int {
+		$segments = $anotherPath->segments();
+		$count = 0;
+		foreach ($this->segments as $i => $segment) {
+			if ($segment != $segments[$i]) {
+				break;
+			}
+			$count++;
+		}
 
-        return $count;
-    }
+		return $count;
+	}
 
-    /**
-     * Returns a new path which is the same as this path but with the file extension removed.
-     * 
-     * @return Path
-     */
-    public function removeExtension(): self {
-        return new self($this->pathname->replace('.' . $this->getExtension(), ''));
-    }
+	/**
+	 * Returns a new path which is the same as this path but with the file extension removed.
+	 * 
+	 * @return Path
+	 */
+	public function removeExtension(): self {
+		return new self($this->pathname->replace('.' . $this->getExtension(), ''));
+	}
 
-    /**
-     * Returns a copy of this path with the given number of segments removed from the beginning.
-     * 
-     * @param int $count
-     *
-     * @return Path
-     */
-    public function removeFirstSegments(int $count): self {
-        $segments = new ArrayObject();
-        for ($i = $count; $i < $this->segmentCount(); $i++) {
-            $segments->append($this->segments[$i]);
-        }
+	/**
+	 * Returns a copy of this path with the given number of segments removed from the beginning.
+	 * 
+	 * @param int $count
+	 *
+	 * @return Path
+	 */
+	public function removeFirstSegments(int $count): self {
+		$segments = new ArrayObject();
+		for ($i = $count; $i < $this->segmentCount(); $i++) {
+			$segments->append($this->segments[$i]);
+		}
 
-        return new self($segments->join('/'));
-    }
+		return new self($segments->join('/'));
+	}
 
-    /**
-     * Returns a copy of this path with the given number of segments removed from the end.
-     * 
-     * @param int $count
-     *
-     * @return Path
-     */
-    public function removeLastSegments(int $count): self {
-        $segments = new ArrayObject();
-        for ($i = 0; $i < $this->segmentCount() - $count; $i++) {
-            $segments->append($this->segments[$i]);
-        }
+	/**
+	 * Returns a copy of this path with the given number of segments removed from the end.
+	 * 
+	 * @param int $count
+	 *
+	 * @return Path
+	 */
+	public function removeLastSegments(int $count): self {
+		$segments = new ArrayObject();
+		for ($i = 0; $i < $this->segmentCount() - $count; $i++) {
+			$segments->append($this->segments[$i]);
+		}
 
-        return new self($segments->join('/'));
-    }
+		return new self($segments->join('/'));
+	}
 
-    /**
-     * Returns a copy of this path with the same segments as this path but with a trailing separator removed.
-     * 
-     * @return $this
-     */
-    public function removeTrailingSeparator(): self {
-        if ($this->hasTrailingSeparator()) {
-            $this->pathname = $this->pathname->substring(0, -1);
-        }
+	/**
+	 * Returns a copy of this path with the same segments as this path but with a trailing separator removed.
+	 * 
+	 * @return $this
+	 */
+	public function removeTrailingSeparator(): self {
+		if ($this->hasTrailingSeparator()) {
+			$this->pathname = $this->pathname->substring(0, -1);
+		}
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Returns the specified segment of this path, or null if the path does not have such a segment.
-     * 
-     * @param int $index
-     *
-     * @return string
-     */
-    public function segment(int $index): ?string {
-        if (isset($this->segments[$index])) {
-            return $this->segments[$index];
-        }
+	/**
+	 * Returns the specified segment of this path, or null if the path does not have such a segment.
+	 * 
+	 * @param int $index
+	 *
+	 * @return string
+	 */
+	public function segment(int $index): ?string {
+		if (isset($this->segments[$index])) {
+			return $this->segments[$index];
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * Returns the number of segments in this path.
-     * 
-     * @return int
-     */
-    public function segmentCount(): int {
-        return $this->segments->count();
-    }
+	/**
+	 * Returns the number of segments in this path.
+	 * 
+	 * @return int
+	 */
+	public function segmentCount(): int {
+		return $this->segments->count();
+	}
 
-    /**
-     * Returns the segments in this path in order.
-     * 
-     * @return ArrayObject<string>
-     */
-    public function segments(): ArrayObject {
-        return $this->segments;
-    }
+	/**
+	 * Returns the segments in this path in order.
+	 * 
+	 * @return ArrayObject<string>
+	 */
+	public function segments(): ArrayObject {
+		return $this->segments;
+	}
 
-    /**
-     * Returns a FileDescriptor corresponding to this path.
-     * 
-     * @return FileDescriptor
-     */
-    public function toFileDescriptor(): FileDescriptor {
-        return new FileDescriptor($this->getPathname());
-    }
+	/**
+	 * Returns a FileDescriptor corresponding to this path.
+	 * 
+	 * @return FileDescriptor
+	 */
+	public function toFileDescriptor(): FileDescriptor {
+		return new FileDescriptor($this->getPathname());
+	}
 
-    /**
-     * Returns a string representation of this path
-     * 
-     * @return string A string representation of this path
-     */
-    public function toString(): string {
-        return $this->stream . $this->pathname;
-    }
+	/**
+	 * Returns a string representation of this path
+	 * 
+	 * @return string A string representation of this path
+	 */
+	public function toString(): string {
+		return $this->stream . $this->pathname;
+	}
 
-    /**
-     * String representation as pathname
-     */
-    public function __toString(): string {
-        return $this->toString();
-    }
+	/**
+	 * String representation as pathname
+	 */
+	public function __toString(): string {
+		return $this->toString();
+	}
 
-    /**
-     * Returns a copy of this path truncated after the given number of segments.
-     * 
-     * @param int $count
-     *
-     * @return Path
-     */
-    public function upToSegment(int $count): self {
-        $segments = new ArrayObject();
-        for ($i = 0; $i < $count; $i++) {
-            $segments->append($this->segments[$i]);
-        }
+	/**
+	 * Returns a copy of this path truncated after the given number of segments.
+	 * 
+	 * @param int $count
+	 *
+	 * @return Path
+	 */
+	public function upToSegment(int $count): self {
+		$segments = new ArrayObject();
+		for ($i = 0; $i < $count; $i++) {
+			$segments->append($this->segments[$i]);
+		}
 
-        return new self($segments->join('/'));
-    }
+		return new self($segments->join('/'));
+	}
 
-    /**
-     * Checks whether both paths point to the same location
-     * 
-     * @param Path|string $anotherPath
-     *
-     * @return bool true if the do, false if they don't
-     */
-    public function equals($anotherPath): bool {
-        $anotherPath = $anotherPath instanceof self ? $anotherPath : new self($anotherPath);
+	/**
+	 * Checks whether both paths point to the same location
+	 * 
+	 * @param Path|string $anotherPath
+	 *
+	 * @return bool true if the do, false if they don't
+	 */
+	public function equals($anotherPath): bool {
+		$anotherPath = $anotherPath instanceof self ? $anotherPath : new self($anotherPath);
 
-        if ($this->isStream() ^ $anotherPath->isStream()) {
-            return false;
-        }
+		if ($this->isStream() ^ $anotherPath->isStream()) {
+			return false;
+		}
 
-        if ($this->isStream() && $anotherPath->isStream()) {
-            return $this->toString() === $anotherPath->toString();
-        }
+		if ($this->isStream() && $anotherPath->isStream()) {
+			return $this->toString() === $anotherPath->toString();
+		}
 
-        return realpath($this->pathname->toString()) == realpath($anotherPath->toString());
-    }
+		return realpath($this->pathname->toString()) == realpath($anotherPath->toString());
+	}
 }

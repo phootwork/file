@@ -15,104 +15,104 @@ use phootwork\file\exception\FileException;
 use phootwork\lang\Text;
 
 class Directory implements Iterator {
-    use FileOperationTrait;
+	use FileOperationTrait;
 
-    /** @var DirectoryIterator|null */
-    private $iterator;
+	/** @var DirectoryIterator|null */
+	private $iterator;
 
-    /**
-     * Directory constructor.
-     *
-     * @param string|Text $filename
-     */
-    public function __construct($filename) {
-        $this->init($filename);
-    }
+	/**
+	 * Directory constructor.
+	 *
+	 * @param string|Text $filename
+	 */
+	public function __construct($filename) {
+		$this->init($filename);
+	}
 
-    /**
-     * Creates the directory
-     * 
-     * @param int $mode
-     *
-     * @throws FileException when something goes wrong
-     */
-    public function make(int $mode = 0777): void {
-        if (!$this->exists() && !@mkdir($this->pathname, $mode, true)) {
-            throw new FileException(sprintf('Failed to create directory "%s"', $this->pathname));
-        }
-    }
+	/**
+	 * Creates the directory
+	 * 
+	 * @param int $mode
+	 *
+	 * @throws FileException when something goes wrong
+	 */
+	public function make(int $mode = 0777): void {
+		if (!$this->exists() && !@mkdir($this->pathname, $mode, true)) {
+			throw new FileException(sprintf('Failed to create directory "%s"', $this->pathname));
+		}
+	}
 
-    /**
-     * Recursively deletes the directory
-     *
-     * @throws FileException when something goes wrong
-     */
-    public function delete(): void {
-        foreach ($this as $file) {
-            if (!$file->isDot()) {
-                $file->delete();
-            }
-        }
+	/**
+	 * Recursively deletes the directory
+	 *
+	 * @throws FileException when something goes wrong
+	 */
+	public function delete(): void {
+		foreach ($this as $file) {
+			if (!$file->isDot()) {
+				$file->delete();
+			}
+		}
 
-        if (!@rmdir($this->pathname)) {
-            throw new FileException(sprintf('Failed to delete directory "%s"', $this->pathname));
-        }
-    }
+		if (!@rmdir($this->pathname)) {
+			throw new FileException(sprintf('Failed to delete directory "%s"', $this->pathname));
+		}
+	}
 
-    /**
-     * Returns a directory iterator
-     * 
-     * @return DirectoryIterator
-     */
-    private function getIterator(): DirectoryIterator {
-        if ($this->iterator === null) {
-            $this->iterator = new DirectoryIterator($this->pathname);
-        }
+	/**
+	 * Returns a directory iterator
+	 * 
+	 * @return DirectoryIterator
+	 */
+	private function getIterator(): DirectoryIterator {
+		if ($this->iterator === null) {
+			$this->iterator = new DirectoryIterator($this->pathname);
+		}
 
-        return $this->iterator;
-    }
+		return $this->iterator;
+	}
 
-    /**
-     * @return FileDescriptor
-     *
-     * @internal
-     */
-    public function current(): FileDescriptor {
-        return FileDescriptor::fromFileInfo($this->getIterator()->current());
-    }
+	/**
+	 * @return FileDescriptor
+	 *
+	 * @internal
+	 */
+	public function current(): FileDescriptor {
+		return FileDescriptor::fromFileInfo($this->getIterator()->current());
+	}
 
-    /**
-     * @internal
-     */
-    public function key() {
-        return $this->getIterator()->key();
-    }
+	/**
+	 * @internal
+	 */
+	public function key() {
+		return $this->getIterator()->key();
+	}
 
-    /**
-     * @internal
-     */
-    public function next() {
-        $this->getIterator()->next();
-    }
+	/**
+	 * @internal
+	 */
+	public function next() {
+		$this->getIterator()->next();
+	}
 
-    /**
-     * @internal
-     */
-    public function rewind() {
-        $this->getIterator()->rewind();
-    }
+	/**
+	 * @internal
+	 */
+	public function rewind() {
+		$this->getIterator()->rewind();
+	}
 
-    /**
-     * @internal
-     */
-    public function valid() {
-        return $this->getIterator()->valid();
-    }
+	/**
+	 * @internal
+	 */
+	public function valid() {
+		return $this->getIterator()->valid();
+	}
 
-    /**
-     * String representation of this directory as pathname
-     */
-    public function __toString(): string {
-        return $this->pathname;
-    }
+	/**
+	 * String representation of this directory as pathname
+	 */
+	public function __toString(): string {
+		return $this->pathname;
+	}
 }
