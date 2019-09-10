@@ -33,43 +33,43 @@ trait FileOperationTrait {
 	 * @param string|Text $pathname
 	 */
 	protected function init($pathname): void {
-		$this->pathname = '' . $pathname; // "cast" to string
+		$this->pathname = (string) $pathname;
 	}
 
 	/**
 	 * Returns the file extensions
 	 *
-	 * @return string the file extension
+	 * @return Text the file extension
 	 */
-	public function getExtension(): string {
-		return pathinfo($this->pathname, PATHINFO_EXTENSION);
+	public function getExtension(): Text {
+		return new Text(pathinfo($this->pathname, PATHINFO_EXTENSION));
 	}
 
 	/**
 	 * Returns the filename
 	 *
-	 * @return string the filename
+	 * @return Text the filename
 	 */
-	public function getFilename(): string {
-		return basename($this->pathname);
+	public function getFilename(): Text {
+		return new Text(basename($this->pathname));
 	}
 
 	/**
 	 * Gets the path without filename
 	 *
-	 * @return string
+	 * @return Text
 	 */
-	public function getDirname(): string {
-		return dirname($this->pathname);
+	public function getDirname(): Text {
+		return new Text(dirname($this->pathname));
 	}
 
 	/**
 	 * Gets the path to the file
 	 *
-	 * @return string
+	 * @return Text
 	 */
-	public function getPathname(): string {
-		return $this->pathname;
+	public function getPathname(): Text {
+		return new Text($this->pathname);
 	}
 
 	/**
@@ -301,14 +301,14 @@ trait FileOperationTrait {
 	 * If the destination file already exists, it will be overwritten.
 	 *
 	 *
-	 * @param string|Path $destination The destination path.
+	 * @param string|Text|Path $destination The destination path.
 	 *
 	 * @throws FileException When an error appeared.
 	 */
 	public function copy($destination): void {
 		$destination = $this->getDestination($destination);
 
-		if (!@copy($this->getPathname(), $destination->toString())) {
+		if (!@copy($this->getPathname()->toString(), $destination->toString())) {
 			throw new FileException(sprintf('Failed to copy %s to %s', $this->pathname, (string) $destination));
 		}
 	}
@@ -316,14 +316,14 @@ trait FileOperationTrait {
 	/**
 	 * Moves the file
 	 *
-	 * @param string|Path $destination
+	 * @param string|Text|Path $destination
 	 *
 	 * @throws FileException When an error appeared.
 	 */
 	public function move($destination): void {
 		$destination = $this->getDestination($destination);
 
-		if (@rename($this->getPathname(), $destination->toString())) {
+		if (@rename($this->getPathname()->toString(), $destination->toString())) {
 			$this->pathname = (string) $destination;
 		} else {
 			throw new FileException(sprintf('Failed to move %s to %s', $this->pathname, (string) $destination));
@@ -333,14 +333,14 @@ trait FileOperationTrait {
 	/**
 	 * Transforms destination into path and ensures, parent directory exists
 	 *
-	 * @param string|Path $destination
+	 * @param string|Text|Path $destination
 	 *
 	 * @throws FileException
 	 *
 	 * @return Path
 	 */
 	private function getDestination($destination): Path {
-		$destination = $destination instanceof Path ? $destination : new Path($destination);
+		$destination = $destination instanceof Path ? $destination : new Path((string) $destination);
 		$targetDir = new Directory($destination->getDirname());
 		$targetDir->make();
 
@@ -370,7 +370,7 @@ trait FileOperationTrait {
 			}
 		}
 
-		if (!$ok && @symlink($this->pathname, $target->getPathname()) !== true) {
+		if (!$ok && @symlink($this->pathname, $target->getPathname()->toString()) !== true) {
 			$report = error_get_last();
 			if (is_array($report) && DIRECTORY_SEPARATOR === '\\' && strpos($report['message'], 'error code(1314)') !== false) {
 				throw new FileException('Unable to create symlink due to error code 1314: \'A required privilege is not held by the client\'. Do you have the required Administrator-rights?');

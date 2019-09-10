@@ -61,28 +61,28 @@ class Path {
 	/**
 	 * Returns the extension
 	 * 
-	 * @return string the extension
+	 * @return Text the extension
 	 */
-	public function getExtension(): string {
-		return $this->extension;
+	public function getExtension(): Text {
+		return new Text($this->extension);
 	}
 
 	/**
 	 * Returns the filename
 	 *
-	 * @return string the filename
+	 * @return Text the filename
 	 */
-	public function getFilename(): string {
-		return $this->filename;
+	public function getFilename(): Text {
+		return new Text($this->filename);
 	}
 
 	/**
 	 * Gets the path without filename
 	 *
-	 * @return string
+	 * @return Text
 	 */
-	public function getDirname(): string {
-		return $this->stream . $this->dirname;
+	public function getDirname(): Text {
+		return new Text($this->stream . $this->dirname);
 	}
 
 	/**
@@ -104,11 +104,11 @@ class Path {
 	/**
 	 * Changes the extension of this path
 	 * 
-	 * @param string $extension the new extension
+	 * @param string|Text $extension the new extension
 	 *
 	 * @return $this
 	 */
-	public function setExtension(string $extension): self {
+	public function setExtension($extension): self {
 		$pathinfo = pathinfo($this->pathname->toString());
 
 		$pathname = new Text($pathinfo['dirname']);
@@ -119,7 +119,7 @@ class Path {
 		$this->init($pathname
 			->append($pathinfo['filename'])
 			->append('.')
-			->append($extension))
+			->append((string) $extension))
 		;
 
 		return $this;
