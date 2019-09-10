@@ -30,34 +30,34 @@ class File {
 	 * 
 	 * @throws FileException
 	 *
-	 * @return string contents
+	 * @return Text contents
 	 */
-	public function read(): string {
+	public function read(): Text {
 		if (!$this->exists()) {
-			throw new FileException(sprintf('File does not exist: %s', $this->getFilename()));
+			throw new FileException(sprintf('File does not exist: %s', $this->getFilename()->toString()));
 		}
 
 		if (!$this->isReadable()) {
-			throw new FileException(sprintf('You don\'t have permissions to access %s file', $this->getFilename()));
+			throw new FileException(sprintf('You don\'t have permissions to access %s file', $this->getFilename()->toString()));
 		}
 
-		return file_get_contents($this->pathname);
+		return new Text(file_get_contents($this->pathname));
 	}
 
 	/**
 	 * Writes contents to the file
 	 *
-	 * @param string $contents
+	 * @param string|Text $contents
 	 *
 	 * @throws FileException
 	 *
 	 * @return $this
 	 */
-	public function write(string $contents): self {
+	public function write($contents): self {
 		$dir = new Directory($this->getDirname());
 		$dir->make();
 
-		file_put_contents($this->pathname, $contents);
+		file_put_contents($this->pathname, (string) $contents);
 
 		return $this;
 	}
