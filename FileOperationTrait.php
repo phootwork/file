@@ -19,6 +19,11 @@ trait FileOperationTrait {
 	protected $pathname;
 
 	/**
+	 * @param string|Text $pathname
+	 */
+	abstract public function __construct($pathname);
+
+	/**
 	 * Static instantiator
 	 *
 	 * @param string|Text $pathname
