@@ -340,7 +340,7 @@ class Path {
 	/**
 	 * Returns the segments in this path in order.
 	 * 
-	 * @return ArrayObject<string>
+	 * @return ArrayObject
 	 */
 	public function segments(): ArrayObject {
 		return $this->segments;
