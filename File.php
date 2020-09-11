@@ -13,6 +13,11 @@ use DateTime;
 use phootwork\file\exception\FileException;
 use phootwork\lang\Text;
 
+/**
+ * Class File
+ *
+ * @psalm-consistent-constructor
+ */
 class File {
 	use FileOperationTrait;
 

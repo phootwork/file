@@ -11,6 +11,11 @@ namespace phootwork\file;
 
 use phootwork\lang\Text;
 
+/**
+ * Class FileDescriptor
+ *
+ * @psalm-consistent-constructor
+ */
 class FileDescriptor {
 	use FileOperationTrait;
 

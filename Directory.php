@@ -14,6 +14,11 @@ use Iterator;
 use phootwork\file\exception\FileException;
 use phootwork\lang\Text;
 
+/**
+ * Class Directory
+ *
+ * @psalm-consistent-constructor
+ */
 class Directory implements Iterator {
 	use FileOperationTrait;
 
