@@ -12,33 +12,33 @@ namespace phootwork\file;
 use DateTime;
 use phootwork\file\exception\FileException;
 use phootwork\lang\Text;
+use Stringable;
 
 trait FileOperationTrait {
 
 	/** @var string */
-	protected $pathname;
+	protected string $pathname;
 
 	/**
-	 * @param string|Text $pathname
+	 * Initialize the property by converting Stringable into string.
+	 *
+	 * @param string|Stringable $pathname
 	 */
-	abstract public function __construct($pathname);
+	abstract public function __construct(string | Stringable $pathname);
+
+	abstract public function delete(): void;
 
 	/**
 	 * Static instantiator
 	 *
-	 * @param string|Text $pathname
+	 * @param string|Stringable $pathname
 	 *
 	 * @return static
+	 *
+	 * @psalm-suppress UnsafeInstantiation
 	 */
-	public static function create($pathname) {
+	public static function create(Stringable | string $pathname): static {
 		return new static($pathname);
-	}
-
-	/**
-	 * @param string|Text $pathname
-	 */
-	protected function init($pathname): void {
-		$this->pathname = (string) $pathname;
 	}
 
 	/**
@@ -146,7 +146,7 @@ trait FileOperationTrait {
 	/**
 	 * Gets file inode
 	 *
-	 * @return int Returns the inode number of the file, or NULL on failure.
+	 * @return int|null Returns the inode number of the file, or NULL on failure.
 	 */
 	public function getInode(): ?int {
 		$inode = fileinode($this->pathname);
@@ -157,7 +157,7 @@ trait FileOperationTrait {
 	/**
 	 * Gets file group
 	 *
-	 * @return int Returns the group ID, or NULL if an error occurs.
+	 * @return int|null Returns the group ID, or NULL if an error occurs.
 	 */
 	public function getGroup(): ?int {
 		$group = filegroup($this->pathname);
@@ -168,7 +168,7 @@ trait FileOperationTrait {
 	/**
 	 * Gets file owner
 	 *
-	 * @return int Returns the user ID of the owner, or NULL on failure.
+	 * @return int|null Returns the user ID of the owner, or NULL on failure.
 	 */
 	public function getOwner(): ?int {
 		$owner = fileowner($this->pathname);
@@ -258,12 +258,8 @@ trait FileOperationTrait {
 	 *
 	 * @return bool Returns TRUE on success or FALSE on failure.
 	 */
-	public function setGroup($group): bool {
-		if ($this->isLink()) {
-			return lchgrp($this->pathname, $group);
-		} else {
-			return chgrp($this->pathname, $group);
-		}
+	public function setGroup(mixed $group): bool {
+		return $this->isLink() ? lchgrp($this->pathname, $group) : chgrp($this->pathname, $group);
 	}
 
 	/**
@@ -292,12 +288,8 @@ trait FileOperationTrait {
 	 *
 	 * @return bool Returns TRUE on success or FALSE on failure.
 	 */
-	public function setOwner($user): bool {
-		if ($this->isLink()) {
-			return lchown($this->pathname, $user);
-		} else {
-			return chown($this->pathname, $user);
-		}
+	public function setOwner(mixed $user): bool {
+		return $this->isLink() ? lchown($this->pathname, $user) : chown($this->pathname, $user);
 	}
 
 	/**
@@ -310,7 +302,7 @@ trait FileOperationTrait {
 	 *
 	 * @throws FileException When an error appeared.
 	 */
-	public function copy($destination): void {
+	public function copy(Path | Text | string $destination): void {
 		$destination = $this->getDestination($destination);
 
 		if (!@copy($this->getPathname()->toString(), $destination->toString())) {
@@ -325,7 +317,7 @@ trait FileOperationTrait {
 	 *
 	 * @throws FileException When an error appeared.
 	 */
-	public function move($destination): void {
+	public function move(Path | Text | string $destination): void {
 		$destination = $this->getDestination($destination);
 
 		if (@rename($this->getPathname()->toString(), $destination->toString())) {
@@ -344,8 +336,8 @@ trait FileOperationTrait {
 	 *
 	 * @return Path
 	 */
-	private function getDestination($destination): Path {
-		$destination = $destination instanceof Path ? $destination : new Path((string) $destination);
+	private function getDestination(Path | Text | string $destination): Path {
+		$destination = $destination instanceof Path ? $destination : new Path($destination);
 		$targetDir = new Directory($destination->getDirname());
 		$targetDir->make();
 
@@ -358,11 +350,10 @@ trait FileOperationTrait {
 	 * @param string|Path|Text $destination
 	 *
 	 * @throws FileException
-	 *
 	 * @psalm-suppress PossiblyNullReference If $target->isLink() is true then $target->getLinkTarget() is never null
 	 */
-	public function linkTo($destination): void {
-		$target = new FileDescriptor((string) $destination);
+	public function linkTo(Path | Text | string $destination): void {
+		$target = new FileDescriptor($destination);
 		$targetDir = new Directory($target->getDirname());
 		$targetDir->make();
 
@@ -377,13 +368,11 @@ trait FileOperationTrait {
 
 		if (!$ok && @symlink($this->pathname, $target->getPathname()->toString()) !== true) {
 			$report = error_get_last();
-			if (is_array($report) && DIRECTORY_SEPARATOR === '\\' && strpos($report['message'], 'error code(1314)') !== false) {
+			if (is_array($report) && DIRECTORY_SEPARATOR === '\\' && str_contains($report['message'], 'error code(1314)')) {
 				throw new FileException('Unable to create symlink due to error code 1314: \'A required privilege is not held by the client\'. Do you have the required Administrator-rights?');
 			}
 
 			throw new FileException(sprintf('Failed to create symbolic link from %s to %s', $this->pathname, (string) $targetDir));
 		}
 	}
-
-	abstract public function delete();
 }

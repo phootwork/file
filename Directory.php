@@ -12,26 +12,24 @@ namespace phootwork\file;
 use DirectoryIterator;
 use Iterator;
 use phootwork\file\exception\FileException;
-use phootwork\lang\Text;
+use Stringable;
 
 /**
  * Class Directory
- *
- * @psalm-consistent-constructor
  */
-class Directory implements Iterator {
+class Directory implements Iterator, Stringable {
 	use FileOperationTrait;
 
-	/** @var DirectoryIterator|null */
-	private $iterator;
+	/** @var ?DirectoryIterator */
+	private ?DirectoryIterator $iterator = null;
 
 	/**
 	 * Directory constructor.
 	 *
-	 * @param string|Text $filename
+	 * @param string|Stringable $filename
 	 */
-	public function __construct($filename) {
-		$this->init($filename);
+	public function __construct(Stringable | string $filename) {
+		$this->pathname = (string) $filename;
 	}
 
 	/**
@@ -89,28 +87,28 @@ class Directory implements Iterator {
 	/**
 	 * @internal
 	 */
-	public function key() {
+	public function key(): float | bool | int | string | null {
 		return $this->getIterator()->key();
 	}
 
 	/**
 	 * @internal
 	 */
-	public function next() {
+	public function next(): void {
 		$this->getIterator()->next();
 	}
 
 	/**
 	 * @internal
 	 */
-	public function rewind() {
+	public function rewind(): void {
 		$this->getIterator()->rewind();
 	}
 
 	/**
 	 * @internal
 	 */
-	public function valid() {
+	public function valid(): bool {
 		return $this->getIterator()->valid();
 	}
 

@@ -11,41 +11,35 @@ namespace phootwork\file;
 
 use phootwork\lang\ArrayObject;
 use phootwork\lang\Text;
+use Stringable;
 
-class Path {
+class Path implements Stringable {
 
 	/** @var ArrayObject */
-	private $segments;
+	private ArrayObject $segments;
 
 	/** @var string */
-	private $stream = '';
+	private string $stream = '';
 
 	/** @var Text */
-	private $pathname;
+	private Text $pathname;
 
 	/** @var string */
-	private $dirname;
+	private string $dirname;
 
 	/** @var string */
-	private $filename;
+	private string $filename;
 
 	/** @var string */
-	private $extension;
+	private string $extension;
 
 	/**
 	 * Path constructor.
 	 *
-	 * @param string|Text $pathname
+	 * @param string|Stringable $pathname
 	 */
-	public function __construct($pathname) {
-		$this->init($pathname);
-	}
-
-	/**
-	 * @param string|Text $pathname
-	 */
-	private function init($pathname): void {
-		$this->pathname = $pathname instanceof Text ? $pathname : new Text($pathname);
+	public function __construct(Stringable | string $pathname) {
+		$this->pathname = new Text($pathname);
 
 		if ($this->pathname->match('/^[a-zA-Z]+:\/\//')) {
 			$this->stream = $this->pathname->slice(0, (int) $this->pathname->indexOf('://') + 3)->toString();
@@ -103,12 +97,12 @@ class Path {
 
 	/**
 	 * Changes the extension of this path
-	 * 
-	 * @param string|Text $extension the new extension
 	 *
-	 * @return $this
+	 * @param string|Stringable $extension the new extension
+	 *
+	 * @return self
 	 */
-	public function setExtension($extension): self {
+	public function setExtension(Stringable | string $extension): self {
 		$pathinfo = pathinfo($this->pathname->toString());
 
 		$pathname = new Text($pathinfo['dirname']);
@@ -116,13 +110,11 @@ class Path {
 			$pathname = $pathname->append('/');
 		}
 
-		$this->init($pathname
-			->append($pathinfo['filename'])
-			->append('.')
-			->append((string) $extension))
-		;
-
-		return $this;
+		return new self($pathname
+				->append($pathinfo['filename'])
+				->append('.')
+				->append((string) $extension)
+			);
 	}
 
 	/**
@@ -140,14 +132,14 @@ class Path {
 	}
 
 	/**
-	 * Returns the path obtained from the concatenation of the given path's 
+	 * Returns the path obtained from the concatenation of the given path's
 	 * segments/string to the end of this path.
-	 * 
-	 * @param string|Text|Path $path
+	 *
+	 * @param string|Stringable $path
 	 *
 	 * @return Path
 	 */
-	public function append($path): self {
+	public function append(Stringable | string $path): self {
 		if ($path instanceof self) {
 			$path = $path->getPathname();
 		}
@@ -315,17 +307,13 @@ class Path {
 
 	/**
 	 * Returns the specified segment of this path, or null if the path does not have such a segment.
-	 * 
+	 *
 	 * @param int $index
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function segment(int $index): ?string {
-		if (isset($this->segments[$index])) {
-			return $this->segments[$index];
-		}
-
-		return null;
+		return $this->segments[$index] ?? null;
 	}
 
 	/**
@@ -389,15 +377,15 @@ class Path {
 
 	/**
 	 * Checks whether both paths point to the same location
-	 * 
+	 *
 	 * @param Path|string $anotherPath
 	 *
 	 * @return bool true if the do, false if they don't
 	 */
-	public function equals($anotherPath): bool {
-		$anotherPath = $anotherPath instanceof self ? $anotherPath : new self($anotherPath);
+	public function equals(self | string $anotherPath): bool {
+		$anotherPath = new self($anotherPath);
 
-		if ($this->isStream() ^ $anotherPath->isStream()) {
+		if ($this->isStream() xor $anotherPath->isStream()) {
 			return false;
 		}
 

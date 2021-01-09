@@ -12,22 +12,21 @@ namespace phootwork\file;
 use DateTime;
 use phootwork\file\exception\FileException;
 use phootwork\lang\Text;
+use Stringable;
 
 /**
  * Class File
- *
- * @psalm-consistent-constructor
  */
-class File {
+class File implements Stringable {
 	use FileOperationTrait;
 
 	/**
 	 * File constructor.
 	 *
-	 * @param string|Text $filename
+	 * @param string|Stringable $filename
 	 */
-	public function __construct($filename) {
-		$this->init($filename);
+	public function __construct(Stringable | string $filename) {
+		$this->pathname = (string) $filename;
 	}
 
 	/**
@@ -52,13 +51,13 @@ class File {
 	/**
 	 * Writes contents to the file
 	 *
-	 * @param string|Text $contents
+	 * @param string|Stringable $contents
 	 *
 	 * @throws FileException
 	 *
 	 * @return $this
 	 */
-	public function write($contents): self {
+	public function write(Stringable | string $contents): self {
 		$dir = new Directory($this->getDirname());
 		$dir->make();
 
@@ -69,13 +68,13 @@ class File {
 
 	/**
 	 * Touches the file
-	 * 
-	 * @param int|DateTime $created
-	 * @param int|DateTime $lastAccessed
+	 *
+	 * @param DateTime|int|null $created
+	 * @param DateTime|int|null $lastAccessed
 	 *
 	 * @throws FileException when something goes wrong
 	 */
-	public function touch($created = null, $lastAccessed = null): void {
+	public function touch(DateTime | int $created = null, DateTime | int $lastAccessed = null): void {
 		$created = $created instanceof DateTime
 			? $created->getTimestamp()
 			: ($created === null ? time() : $created);

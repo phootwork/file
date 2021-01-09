@@ -9,14 +9,13 @@
  */
 namespace phootwork\file;
 
-use phootwork\lang\Text;
+use phootwork\file\exception\FileException;
+use Stringable;
 
 /**
  * Class FileDescriptor
- *
- * @psalm-consistent-constructor
  */
-class FileDescriptor {
+class FileDescriptor implements Stringable {
 	use FileOperationTrait;
 
 	/**
@@ -33,10 +32,10 @@ class FileDescriptor {
 	/**
 	 * FileDescriptor constructor.
 	 *
-	 * @param string|Text $filename
+	 * @param string|Stringable $filename
 	 */
-	public function __construct($filename) {
-		$this->init($filename);
+	public function __construct(string | Stringable $filename) {
+		$this->pathname = (string) $filename;
 	}
 
 	/**
@@ -87,7 +86,7 @@ class FileDescriptor {
 	/**
 	 * Deletes the file
 	 *
-	 * @throws exception\FileException
+	 * @throws FileException
 	 */
 	public function delete(): void {
 		if ($this->isDir()) {
