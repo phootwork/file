@@ -1,11 +1,11 @@
 # PHP File Library
 
-[![Build Status](https://travis-ci.org/phootwork/phootwork.svg?branch=master)](https://travis-ci.org/phootwork/phootwork)
+![Tests](https://github.com/phootwork/phootwork/workflows/Tests/badge.svg)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phootwork/phootwork/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phootwork/phootwork/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/phootwork/phootwork/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/phootwork/phootwork/?branch=master)
 [![License](https://img.shields.io/github/license/phootwork/file.svg?style=flat-square)](https://packagist.org/packages/phootwork/file)
 [![Latest Stable Version](https://img.shields.io/packagist/v/phootwork/file.svg?style=flat-square)](https://packagist.org/packages/phootwork/file)
-[![Total Downloads](https://img.shields.io/packagist/dt/phootwork/file.svg?style=flat-square&colorB=007ec6)](https://packagist.org/packages/phootwork/file)<br>
+[![Total Downloads](https://img.shields.io/packagist/dt/phootwork/file.svg?style=flat-square&colorB=007ec6)](https://packagist.org/packages/phootwork/file)
 
 PHP File library for the local filesystem.
 

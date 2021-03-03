@@ -18,6 +18,10 @@ use Stringable;
 class FileDescriptor implements Stringable {
 	use FileOperationTrait;
 
+	public function __construct(string|Stringable $filename) {
+		$this->pathname = (string) $filename;
+	}
+
 	/**
 	 * Creates a new FileDescriptor from SplFileInfo
 	 * 
@@ -27,15 +31,6 @@ class FileDescriptor implements Stringable {
 	 */
 	public static function fromFileInfo(\SplFileInfo $fileInfo): self {
 		return new self($fileInfo->getPathname());
-	}
-
-	/**
-	 * FileDescriptor constructor.
-	 *
-	 * @param string|Stringable $filename
-	 */
-	public function __construct(string | Stringable $filename) {
-		$this->pathname = (string) $filename;
 	}
 
 	/**

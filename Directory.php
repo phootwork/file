@@ -23,12 +23,7 @@ class Directory implements Iterator, Stringable {
 	/** @var ?DirectoryIterator */
 	private ?DirectoryIterator $iterator = null;
 
-	/**
-	 * Directory constructor.
-	 *
-	 * @param string|Stringable $filename
-	 */
-	public function __construct(Stringable | string $filename) {
+	public function __construct(string|Stringable $filename) {
 		$this->pathname = (string) $filename;
 	}
 
@@ -87,7 +82,7 @@ class Directory implements Iterator, Stringable {
 	/**
 	 * @internal
 	 */
-	public function key(): float | bool | int | string | null {
+	public function key(): float|bool|int|string|null {
 		return $this->getIterator()->key();
 	}
 

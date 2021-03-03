@@ -15,30 +15,20 @@ use phootwork\lang\Text;
 use Stringable;
 
 trait FileOperationTrait {
-
-	/** @var string */
 	protected string $pathname;
 
-	/**
-	 * Initialize the property by converting Stringable into string.
-	 *
-	 * @param string|Stringable $pathname
-	 */
-	abstract public function __construct(string | Stringable $pathname);
-
 	abstract public function delete(): void;
+	abstract public function __construct(string|Stringable $pathname);
 
 	/**
 	 * Static instantiator
 	 *
 	 * @param string|Stringable $pathname
 	 *
-	 * @return static
-	 *
-	 * @psalm-suppress UnsafeInstantiation
+	 * @return self
 	 */
-	public static function create(Stringable | string $pathname): static {
-		return new static($pathname);
+	public static function create(string|Stringable $pathname): self {
+		return new self($pathname);
 	}
 
 	/**
@@ -254,11 +244,11 @@ trait FileOperationTrait {
 	 * Only the superuser may change the group arbitrarily; other users may
 	 * change the group of a file to any group of which that user is a member.
 	 *
-	 * @param mixed $group A group name or number.
+	 * @param string|int $group A group name or number.
 	 *
 	 * @return bool Returns TRUE on success or FALSE on failure.
 	 */
-	public function setGroup(mixed $group): bool {
+	public function setGroup(string|int $group): bool {
 		return $this->isLink() ? lchgrp($this->pathname, $group) : chgrp($this->pathname, $group);
 	}
 
@@ -284,11 +274,11 @@ trait FileOperationTrait {
 	 *
 	 * Attempts to change the owner. Only the superuser may change the owner of a file.
 	 *
-	 * @param mixed $user A user name or number.
+	 * @param string|int $user A user name or number.
 	 *
 	 * @return bool Returns TRUE on success or FALSE on failure.
 	 */
-	public function setOwner(mixed $user): bool {
+	public function setOwner(string|int $user): bool {
 		return $this->isLink() ? lchown($this->pathname, $user) : chown($this->pathname, $user);
 	}
 
@@ -302,7 +292,7 @@ trait FileOperationTrait {
 	 *
 	 * @throws FileException When an error appeared.
 	 */
-	public function copy(Path | Text | string $destination): void {
+	public function copy(Path|Text|string $destination): void {
 		$destination = $this->getDestination($destination);
 
 		if (!@copy($this->getPathname()->toString(), $destination->toString())) {
@@ -317,7 +307,7 @@ trait FileOperationTrait {
 	 *
 	 * @throws FileException When an error appeared.
 	 */
-	public function move(Path | Text | string $destination): void {
+	public function move(Path|Text|string $destination): void {
 		$destination = $this->getDestination($destination);
 
 		if (@rename($this->getPathname()->toString(), $destination->toString())) {
@@ -336,7 +326,7 @@ trait FileOperationTrait {
 	 *
 	 * @return Path
 	 */
-	private function getDestination(Path | Text | string $destination): Path {
+	private function getDestination(Path|Text|string $destination): Path {
 		$destination = $destination instanceof Path ? $destination : new Path($destination);
 		$targetDir = new Directory($destination->getDirname());
 		$targetDir->make();
@@ -352,7 +342,7 @@ trait FileOperationTrait {
 	 * @throws FileException
 	 * @psalm-suppress PossiblyNullReference If $target->isLink() is true then $target->getLinkTarget() is never null
 	 */
-	public function linkTo(Path | Text | string $destination): void {
+	public function linkTo(Path|Text|string $destination): void {
 		$target = new FileDescriptor($destination);
 		$targetDir = new Directory($target->getDirname());
 		$targetDir->make();

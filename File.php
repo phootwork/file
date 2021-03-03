@@ -20,12 +20,7 @@ use Stringable;
 class File implements Stringable {
 	use FileOperationTrait;
 
-	/**
-	 * File constructor.
-	 *
-	 * @param string|Stringable $filename
-	 */
-	public function __construct(Stringable | string $filename) {
+	public function __construct(string|Stringable $filename) {
 		$this->pathname = (string) $filename;
 	}
 
@@ -57,7 +52,7 @@ class File implements Stringable {
 	 *
 	 * @return $this
 	 */
-	public function write(Stringable | string $contents): self {
+	public function write(Stringable|string $contents): self {
 		$dir = new Directory($this->getDirname());
 		$dir->make();
 
@@ -74,7 +69,7 @@ class File implements Stringable {
 	 *
 	 * @throws FileException when something goes wrong
 	 */
-	public function touch(DateTime | int $created = null, DateTime | int $lastAccessed = null): void {
+	public function touch(DateTime|int $created = null, DateTime|int $lastAccessed = null): void {
 		$created = $created instanceof DateTime
 			? $created->getTimestamp()
 			: ($created === null ? time() : $created);

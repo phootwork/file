@@ -38,7 +38,7 @@ class Path implements Stringable {
 	 *
 	 * @param string|Stringable $pathname
 	 */
-	public function __construct(Stringable | string $pathname) {
+	public function __construct(Stringable|string $pathname) {
 		$this->pathname = new Text($pathname);
 
 		if ($this->pathname->match('/^[a-zA-Z]+:\/\//')) {
@@ -102,7 +102,7 @@ class Path implements Stringable {
 	 *
 	 * @return self
 	 */
-	public function setExtension(Stringable | string $extension): self {
+	public function setExtension(Stringable|string $extension): self {
 		$pathinfo = pathinfo($this->pathname->toString());
 
 		$pathname = new Text($pathinfo['dirname']);
@@ -139,7 +139,7 @@ class Path implements Stringable {
 	 *
 	 * @return Path
 	 */
-	public function append(Stringable | string $path): self {
+	public function append(Stringable|string $path): self {
 		if ($path instanceof self) {
 			$path = $path->getPathname();
 		}
@@ -214,6 +214,7 @@ class Path implements Stringable {
 	 * @return Text
 	 */
 	public function lastSegment(): Text {
+		/** @var string[] $this->segments */
 		return new Text($this->segments[count($this->segments) - 1]);
 	}
 
@@ -241,6 +242,10 @@ class Path implements Stringable {
 	public function matchingFirstSegments(self $anotherPath): int {
 		$segments = $anotherPath->segments();
 		$count = 0;
+		/**
+		 * @var int $i
+		 * @var string $segment
+		 */
 		foreach ($this->segments as $i => $segment) {
 			if ($segment != $segments[$i]) {
 				break;
@@ -313,6 +318,7 @@ class Path implements Stringable {
 	 * @return string|null
 	 */
 	public function segment(int $index): ?string {
+		/** @var string[] $this->segments */
 		return $this->segments[$index] ?? null;
 	}
 
@@ -382,7 +388,7 @@ class Path implements Stringable {
 	 *
 	 * @return bool true if the do, false if they don't
 	 */
-	public function equals(self | string $anotherPath): bool {
+	public function equals(self|string $anotherPath): bool {
 		$anotherPath = new self($anotherPath);
 
 		if ($this->isStream() xor $anotherPath->isStream()) {
