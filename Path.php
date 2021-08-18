@@ -110,11 +110,12 @@ class Path implements Stringable {
 			$pathname = $pathname->append('/');
 		}
 
-		return new self($pathname
+		return new self(
+			$pathname
 				->append($pathinfo['filename'])
 				->append('.')
 				->append((string) $extension)
-			);
+		);
 	}
 
 	/**

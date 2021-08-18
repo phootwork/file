@@ -56,6 +56,12 @@ class File implements Stringable {
 		$dir = new Directory($this->getDirname());
 		$dir->make();
 
+		if ($this->exists() && !$this->isWritable()) {
+			throw new FileException(
+				"Impossible to write the file `{$this->getPathname()}`: do you have enough permissions?"
+			);
+		}
+
 		file_put_contents($this->pathname, (string) $contents);
 
 		return $this;
