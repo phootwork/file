@@ -25,10 +25,12 @@ trait FileOperationTrait {
 	 *
 	 * @param string|Stringable $pathname
 	 *
-	 * @return self
+	 * @return static
+	 *
+	 * @psalm-suppress UnsafeInstantiation
 	 */
-	public static function create(string|Stringable $pathname): self {
-		return new self($pathname);
+	public static function create(string|Stringable $pathname): static {
+		return new static($pathname);
 	}
 
 	/**
