@@ -100,6 +100,28 @@ class File implements Stringable {
 	}
 
 	/**
+	 * Get the size of the file in bytes.
+	 *
+	 * @throws FileException If the file does not exist or it's not accessible
+	 */
+	public function getSize(): int {
+		$size = @filesize($this->getPathname()->toString());
+
+		if ($size === false) {
+			$message = Text::create(error_get_last()['message'] ?? '')
+				->replace('filesize(): ', '')
+				->prepend('Impossible to get the file size: ')
+				->trim(' :')
+				->ensureEnd('.')
+			;
+
+			throw new FileException((string) $message);
+		}
+
+		return $size;
+	}
+
+	/**
 	 * String representation of this file as pathname
 	 */
 	public function __toString(): string {
