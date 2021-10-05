@@ -68,6 +68,27 @@ class File implements Stringable {
 	}
 
 	/**
+	 * Append the content at the end of the file.
+	 *
+	 * @param Stringable|string $contents The content to append
+	 *
+	 * @throws FileException if the file does not exist or is not writable
+	 *
+	 * @return $this
+	 */
+	public function append(Stringable|string $contents): self {
+		if (!$this->exists() || !$this->isWritable()) {
+			throw new FileException(
+				"Impossible to write the file `{$this->getPathname()}`: do you have enough permissions?"
+			);
+		}
+
+		file_put_contents($this->pathname, (string) $contents, FILE_APPEND);
+
+		return $this;
+	}
+
+	/**
 	 * Touches the file
 	 *
 	 * @param DateTime|int|null $created
