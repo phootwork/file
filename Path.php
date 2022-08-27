@@ -14,7 +14,6 @@ use phootwork\lang\Text;
 use Stringable;
 
 class Path implements Stringable {
-
 	/** @var ArrayObject */
 	private ArrayObject $segments;
 
