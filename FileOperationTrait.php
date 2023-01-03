@@ -342,6 +342,7 @@ trait FileOperationTrait {
 	 * @param string|Path|Text $destination
 	 *
 	 * @throws FileException
+	 *
 	 * @psalm-suppress PossiblyNullReference If $target->isLink() is true then $target->getLinkTarget() is never null
 	 */
 	public function linkTo(Path|Text|string $destination): void {
