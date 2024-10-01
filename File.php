@@ -96,7 +96,7 @@ class File implements Stringable {
 	 *
 	 * @throws FileException when something goes wrong
 	 */
-	public function touch(DateTime|int $created = null, DateTime|int $lastAccessed = null): void {
+	public function touch(DateTime|int|null $created = null, DateTime|int|null $lastAccessed = null): void {
 		$created = $created instanceof DateTime
 			? $created->getTimestamp()
 			: ($created === null ? time() : $created);
